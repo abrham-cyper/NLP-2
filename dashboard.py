@@ -161,15 +161,23 @@ parts.append("""<!DOCTYPE html>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;
+:root,html[data-theme='dark']{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;
       --text:#e6edf3;--muted:#8b949e;--blue:#58a6ff;--green:#3fb950;
-      --gold:#FFD700;--red:#ff7b72;--purple:#d2a8ff;--cyan:#4FC3F7}
+      --gold:#FFD700;--red:#ff7b72;--purple:#d2a8ff;--cyan:#4FC3F7;
+      --plotly-bg:#0d1117;--plotly-paper:#161b22;--header-bg1:#0d1117;--header-bg2:#161b22;--header-bg3:#1c2128;
+      --avatar-text:#0d1117;--analyzer-bg2:#1c2128}
+html[data-theme='light']{--bg:#f6f8fa;--bg2:#ffffff;--bg3:#e1e4e8;--border:#d0d7de;
+      --text:#1f2328;--muted:#656d76;--blue:#0969da;--green:#1a7f37;
+      --gold:#bf8700;--red:#cf222e;--purple:#8250df;--cyan:#0550ae;
+      --plotly-bg:#f6f8fa;--plotly-paper:#ffffff;--header-bg1:#ffffff;--header-bg2:#f6f8fa;--header-bg3:#eaeef2;
+      --avatar-text:#ffffff;--analyzer-bg2:#eaeef2}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  transition:background .3s ease,color .3s ease}
 
 /* HEADER */
-header{background:linear-gradient(135deg,#0d1117 0%,#161b22 50%,#1c2128 100%);
-  border-bottom:1px solid var(--border);padding:2rem 3rem;position:relative;overflow:hidden}
+header{background:linear-gradient(135deg,var(--header-bg1) 0%,var(--header-bg2) 50%,var(--header-bg3) 100%);
+  border-bottom:1px solid var(--border);padding:2rem 3rem;position:relative;overflow:hidden;transition:background .3s ease}
 header::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;
   background:radial-gradient(circle,#58a6ff15 0%,transparent 70%);pointer-events:none}
 header::after{content:'';position:absolute;bottom:-80px;left:30%;width:400px;height:400px;
@@ -182,7 +190,7 @@ header::after{content:'';position:absolute;bottom:-80px;left:30%;width:400px;hei
 .student-avatar{width:54px;height:54px;border-radius:50%;
   background:linear-gradient(135deg,#58a6ff,#3fb950);
   display:flex;align-items:center;justify-content:center;
-  font-size:1.4rem;font-weight:800;color:#0d1117;flex-shrink:0;
+  font-size:1.4rem;font-weight:800;color:var(--avatar-text);flex-shrink:0;
   box-shadow:0 0 20px #58a6ff44}
 .student-info h3{font-size:1.05rem;font-weight:700;color:var(--text)}
 .student-info p{font-size:.82rem;color:var(--muted);margin-top:.15rem}
@@ -203,7 +211,7 @@ header p.sub{color:var(--muted);margin-top:.35rem;font-size:.9rem}
 /* NAV */
 nav{display:flex;gap:.5rem;padding:.75rem 3rem;background:var(--bg2);
   border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
-  backdrop-filter:blur(10px)}
+  backdrop-filter:blur(10px);transition:background .3s ease}
 nav a{color:var(--muted);text-decoration:none;font-size:.88rem;padding:.4rem .9rem;
   border-radius:8px;transition:all .2s;font-weight:500}
 nav a:hover{background:var(--bg3);color:var(--text)}
@@ -255,8 +263,8 @@ img.embed{width:100%;border-radius:8px;border:1px solid var(--bg3)}
 .term-pill small{color:var(--muted)}
 
 /* INTERACTIVE ANALYZER */
-.analyzer{background:linear-gradient(135deg,var(--bg2),#1c2128);
-  border:1px solid #58a6ff33;border-radius:14px;padding:1.5rem;margin-bottom:1.5rem}
+.analyzer{background:linear-gradient(135deg,var(--bg2),var(--analyzer-bg2));
+  border:1px solid #58a6ff33;border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;transition:background .3s ease}
 .analyzer h3{color:var(--blue);font-weight:700;margin-bottom:.3rem;font-size:1.1rem}
 .analyzer .sub{color:var(--muted);font-size:.84rem;margin-bottom:1rem}
 .input-row{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
@@ -310,12 +318,30 @@ img.embed{width:100%;border-radius:8px;border:1px solid var(--bg3)}
 footer{text-align:center;padding:2rem;color:var(--muted);font-size:.82rem;
   border-top:1px solid var(--bg3);margin-top:2rem;line-height:1.8}
 footer .student-footer{color:var(--blue);font-weight:600}
-</style></head><body>
+
+/* THEME TOGGLE */
+.theme-toggle{position:fixed;right:1.5rem;top:50%;transform:translateY(-50%);z-index:200;
+  display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.toggle-btn{width:50px;height:50px;border-radius:50%;border:2px solid var(--border);
+  background:var(--bg2);color:var(--text);font-size:1.4rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,.25);transition:all .3s ease;
+  backdrop-filter:blur(10px)}
+.toggle-btn:hover{transform:scale(1.1);border-color:var(--blue);box-shadow:0 4px 24px rgba(88,166,255,.3)}
+.toggle-label{font-size:.68rem;color:var(--muted);font-weight:600;writing-mode:vertical-lr;
+  letter-spacing:.05em;text-transform:uppercase}
+</style></head>
+<body data-theme="dark">
 """)
 
 # HEADER
 parts.append(f"""
 <header>
+<!-- THEME TOGGLE BUTTON -->
+<div class="theme-toggle">
+  <button class="toggle-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+  <span class="toggle-label">Theme</span>
+</div>
   <div class="student-card">
     <div class="student-avatar">AH</div>
     <div class="student-info">
@@ -631,6 +657,48 @@ const dk={{paper_bgcolor:'#0d1117',plot_bgcolor:'#161b22',
 Plotly.newPlot('pie_a',{pie_data},{{...dk,showlegend:true,height:280,margin:{{t:10,b:10,l:10,r:10}}}});
 Plotly.newPlot('bar_a',{bar_a_data},{{...dk,barmode:'group',height:280,xaxis:{{tickangle:-30}}}});
 Plotly.newPlot('bar_b',{bar_b_data},{{...dk,height:{bh},margin:{{l:90,t:10,b:40,r:20}}}});
+
+// ── THEME TOGGLE ──────────────────────────────────────────
+function toggleTheme(){{
+  const html = document.documentElement;
+  const body = document.body;
+  const curr = body.getAttribute('data-theme');
+  const next = curr === 'dark' ? 'light' : 'dark';
+  body.setAttribute('data-theme', next);
+  html.setAttribute('data-theme', next);
+  document.getElementById('themeToggle').textContent = next === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem('nlp-theme', next);
+  updatePlotlyTheme(next);
+}}
+
+function updatePlotlyTheme(theme){{
+  const isDark = theme === 'dark';
+  const upd = {{
+    'paper_bgcolor': isDark ? '#161b22' : '#ffffff',
+    'plot_bgcolor':  isDark ? '#161b22' : '#f6f8fa',
+    'font.color':    isDark ? '#e6edf3' : '#1f2328',
+    'xaxis.gridcolor': isDark ? '#21262d' : '#e1e4e8',
+    'yaxis.gridcolor': isDark ? '#21262d' : '#e1e4e8',
+    'xaxis.linecolor': isDark ? '#30363d' : '#d0d7de',
+    'yaxis.linecolor': isDark ? '#30363d' : '#d0d7de',
+  }};
+  ['pie_a','bar_a','bar_b'].forEach(id => {{
+    const el = document.getElementById(id);
+    if(el && el.data) Plotly.relayout(id, upd);
+  }});
+}}
+
+// ── RESTORE SAVED THEME ───────────────────────────────────
+(function(){{
+  const saved = localStorage.getItem('nlp-theme');
+  if(saved && saved === 'light'){{
+    document.body.setAttribute('data-theme','light');
+    document.documentElement.setAttribute('data-theme','light');
+    document.getElementById('themeToggle').textContent = '☀️';
+    setTimeout(()=>updatePlotlyTheme('light'), 500);
+  }}
+}})();
+
 </script></body></html>""")
 
 with open("report.html", "w", encoding="utf-8") as f:

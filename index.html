@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NLP Assignment — Abrham Assefa Habtamu</title>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root,html[data-theme='dark']{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;
+      --text:#e6edf3;--muted:#8b949e;--blue:#58a6ff;--green:#3fb950;
+      --gold:#FFD700;--red:#ff7b72;--purple:#d2a8ff;--cyan:#4FC3F7;
+      --plotly-bg:#0d1117;--plotly-paper:#161b22;--header-bg1:#0d1117;--header-bg2:#161b22;--header-bg3:#1c2128;
+      --avatar-text:#0d1117;--analyzer-bg2:#1c2128}
+html[data-theme='light']{--bg:#f6f8fa;--bg2:#ffffff;--bg3:#e1e4e8;--border:#d0d7de;
+      --text:#1f2328;--muted:#656d76;--blue:#0969da;--green:#1a7f37;
+      --gold:#bf8700;--red:#cf222e;--purple:#8250df;--cyan:#0550ae;
+      --plotly-bg:#f6f8fa;--plotly-paper:#ffffff;--header-bg1:#ffffff;--header-bg2:#f6f8fa;--header-bg3:#eaeef2;
+      --avatar-text:#ffffff;--analyzer-bg2:#eaeef2}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  transition:background .3s ease,color .3s ease}
+
+/* HEADER */
+header{background:linear-gradient(135deg,var(--header-bg1) 0%,var(--header-bg2) 50%,var(--header-bg3) 100%);
+  border-bottom:1px solid var(--border);padding:2rem 3rem;position:relative;overflow:hidden;transition:background .3s ease}
+header::before{content:'';position:absolute;top:-60px;right:-60px;width:300px;height:300px;
+  background:radial-gradient(circle,#58a6ff15 0%,transparent 70%);pointer-events:none}
+header::after{content:'';position:absolute;bottom:-80px;left:30%;width:400px;height:400px;
+  background:radial-gradient(circle,#3fb95010 0%,transparent 70%);pointer-events:none}
+
+.student-card{display:flex;align-items:center;gap:1.2rem;margin-bottom:1.4rem;
+  background:linear-gradient(135deg,#58a6ff12,#3fb95008);
+  border:1px solid #58a6ff33;border-radius:14px;padding:1rem 1.5rem;
+  max-width:520px;backdrop-filter:blur(8px)}
+.student-avatar{width:54px;height:54px;border-radius:50%;
+  background:linear-gradient(135deg,#58a6ff,#3fb950);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;font-weight:800;color:var(--avatar-text);flex-shrink:0;
+  box-shadow:0 0 20px #58a6ff44}
+.student-info h3{font-size:1.05rem;font-weight:700;color:var(--text)}
+.student-info p{font-size:.82rem;color:var(--muted);margin-top:.15rem}
+.student-id{display:inline-block;background:#58a6ff18;border:1px solid #58a6ff44;
+  color:var(--blue);padding:.15rem .55rem;border-radius:8px;font-size:.75rem;
+  font-weight:600;font-family:monospace;margin-top:.3rem}
+
+header h1{font-size:1.9rem;font-weight:800;color:var(--blue);letter-spacing:-.02em}
+header p.sub{color:var(--muted);margin-top:.35rem;font-size:.9rem}
+.badges{margin-top:.9rem;display:flex;gap:.4rem;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:.3rem;padding:.25rem .75rem;
+  border-radius:12px;font-size:.78rem;font-weight:600}
+.ba{background:#1f6feb22;color:var(--blue);border:1px solid #1f6feb}
+.bb{background:#9e6a0322;color:var(--gold);border:1px solid #9e6a03}
+.bc{background:#1a7f3722;color:var(--green);border:1px solid #2ea043}
+.bd{background:#6e40c922;color:var(--purple);border:1px solid #6e40c9}
+
+/* NAV */
+nav{display:flex;gap:.5rem;padding:.75rem 3rem;background:var(--bg2);
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(10px);transition:background .3s ease}
+nav a{color:var(--muted);text-decoration:none;font-size:.88rem;padding:.4rem .9rem;
+  border-radius:8px;transition:all .2s;font-weight:500}
+nav a:hover{background:var(--bg3);color:var(--text)}
+nav a.active{background:var(--bg3);color:var(--blue)}
+
+/* LAYOUT */
+.con{max-width:1400px;margin:0 auto;padding:2rem 3rem}
+.sec{margin-bottom:3.5rem;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.sh{display:flex;align-items:center;gap:.8rem;margin-bottom:1.5rem;
+  padding-bottom:.8rem;border-bottom:1px solid var(--bg3)}
+.sh h2{font-size:1.35rem;font-weight:700}
+.sh .task-num{font-size:1.8rem}
+
+/* STAT CARDS */
+.cards{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:1.5rem}
+.card{background:var(--bg2);border:1px solid var(--bg3);border-radius:12px;padding:1.2rem;
+  transition:border-color .2s,transform .2s;cursor:default}
+.card:hover{border-color:var(--border);transform:translateY(-2px)}
+.card .num{font-size:2rem;font-weight:800;color:var(--blue);
+  counter-reset:n var(--val);animation:countUp 1.5s ease}
+.card .lbl{color:var(--muted);font-size:.84rem;margin-top:.2rem}
+.cb{background:var(--bg2);border:1px solid var(--bg3);border-radius:12px;
+  padding:1.4rem;margin-bottom:1.2rem}
+.cb h3{font-size:1rem;font-weight:600;color:var(--muted);margin-bottom:.9rem;
+  display:flex;align-items:center;gap:.5rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+@media(max-width:768px){.g2{grid-template-columns:1fr}}
+img.embed{width:100%;border-radius:8px;border:1px solid var(--bg3)}
+.hint{color:var(--muted);font-style:italic;font-size:.88rem;padding:.5rem 0}
+
+/* CLUSTER CARDS */
+.cluster-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:1.5rem}
+.cluster-card{background:var(--bg2);border:1px solid var(--bg3);border-radius:12px;
+  padding:1rem 1.2rem;cursor:pointer;transition:all .25s;user-select:none}
+.cluster-card:hover{border-color:var(--border);transform:translateY(-2px)}
+.cc-header{display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem}
+.cc-badge{padding:.2rem .65rem;border-radius:8px;font-size:.8rem;font-weight:700}
+.cc-count{margin-left:auto;font-size:1.1rem;font-weight:700;color:var(--text)}
+.cc-count span{font-size:.75rem;color:var(--muted);margin-left:.2rem}
+.cc-arrow{color:var(--muted);font-size:.75rem;transition:transform .25s}
+.cluster-card.open .cc-arrow{transform:rotate(180deg)}
+.cc-terms{display:flex;flex-wrap:wrap;gap:.35rem}
+.cc-full{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.7rem;
+  padding-top:.7rem;border-top:1px solid var(--bg3);animation:fadeIn .3s ease}
+.term-pill{background:var(--bg3);color:var(--text);padding:.15rem .5rem;
+  border-radius:6px;font-size:.75rem;font-family:monospace}
+.term-pill.full{background:#58a6ff15;color:var(--blue);border:1px solid #58a6ff33}
+.term-pill small{color:var(--muted)}
+
+/* INTERACTIVE ANALYZER */
+.analyzer{background:linear-gradient(135deg,var(--bg2),var(--analyzer-bg2));
+  border:1px solid #58a6ff33;border-radius:14px;padding:1.5rem;margin-bottom:1.5rem;transition:background .3s ease}
+.analyzer h3{color:var(--blue);font-weight:700;margin-bottom:.3rem;font-size:1.1rem}
+.analyzer .sub{color:var(--muted);font-size:.84rem;margin-bottom:1rem}
+.input-row{display:flex;gap:.7rem;align-items:center;flex-wrap:wrap}
+.kw-input{flex:1;min-width:200px;background:var(--bg);border:1px solid var(--border);
+  color:var(--text);padding:.65rem 1rem;border-radius:8px;font-family:'Inter',sans-serif;
+  font-size:.95rem;outline:none;transition:border-color .2s}
+.kw-input:focus{border-color:var(--blue)}
+.kw-input::placeholder{color:var(--muted)}
+.btn{padding:.65rem 1.3rem;border-radius:8px;border:none;font-family:'Inter',sans-serif;
+  font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-blue{background:#1f6feb;color:white} .btn-blue:hover{background:#388bfd}
+.btn-ghost{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--border)}
+.result-box{margin-top:1rem;padding:1rem 1.2rem;border-radius:10px;
+  display:none;animation:fadeIn .3s ease;border:1px solid var(--bg3)}
+.result-box.show{display:flex;align-items:center;gap:1rem}
+.result-icon{font-size:2rem}
+.result-word{font-size:1.1rem;font-weight:700;color:var(--text)}
+.result-score{font-size:.85rem;color:var(--muted);margin-top:.2rem}
+.not-found{color:var(--muted);font-style:italic}
+
+/* KEYWORD TABLE */
+.filter-row{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.filter-btn{padding:.35rem .9rem;border-radius:20px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--muted);font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{background:var(--blue);color:white;border-color:var(--blue)}
+.filter-btn.f-top.active{background:#9e6a03;border-color:var(--gold);color:var(--gold)}
+.filter-btn.f-mid.active{background:#1f6feb44;border-color:var(--blue);color:var(--blue)}
+.filter-btn.f-bot.active{background:#da363344;border-color:var(--red);color:var(--red)}
+.search-input{padding:.38rem .8rem;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text);font-size:.84rem;outline:none;
+  width:160px;transition:border-color .2s}
+.search-input:focus{border-color:var(--blue)}
+.kwt{width:100%;border-collapse:collapse;font-size:.86rem}
+.kwt th{background:var(--bg3);color:var(--muted);padding:.5rem .8rem;text-align:left;font-weight:600;position:sticky;top:0}
+.kwt td{padding:.45rem .8rem;border-bottom:1px solid var(--bg3)}
+.kwt tr:hover td{background:#21262d55}
+.kwt tr[style*="none"]{display:none}
+.pill-top{padding:.18rem .55rem;border-radius:8px;font-size:.74rem;font-weight:700;
+  background:#9e6a0322;color:var(--gold);border:1px solid #9e6a0355}
+.pill-mid{padding:.18rem .55rem;border-radius:8px;font-size:.74rem;font-weight:700;
+  background:#1f6feb22;color:var(--cyan);border:1px solid #1f6feb55}
+.pill-bottom{padding:.18rem .55rem;border-radius:8px;font-size:.74rem;font-weight:700;
+  background:#da363322;color:var(--red);border:1px solid #da363355}
+.score-bar-wrap{display:flex;align-items:center;gap:.6rem}
+.score-bar{height:6px;background:linear-gradient(90deg,#58a6ff,#3fb950);
+  border-radius:3px;min-width:4px;transition:width .5s ease}
+
+/* FOOTER */
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.82rem;
+  border-top:1px solid var(--bg3);margin-top:2rem;line-height:1.8}
+footer .student-footer{color:var(--blue);font-weight:600}
+
+/* THEME TOGGLE */
+.theme-toggle{position:fixed;right:1.5rem;top:50%;transform:translateY(-50%);z-index:200;
+  display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.toggle-btn{width:50px;height:50px;border-radius:50%;border:2px solid var(--border);
+  background:var(--bg2);color:var(--text);font-size:1.4rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(0,0,0,.25);transition:all .3s ease;
+  backdrop-filter:blur(10px)}
+.toggle-btn:hover{transform:scale(1.1);border-color:var(--blue);box-shadow:0 4px 24px rgba(88,166,255,.3)}
+.toggle-label{font-size:.68rem;color:var(--muted);font-weight:600;writing-mode:vertical-lr;
+  letter-spacing:.05em;text-transform:uppercase}
+</style></head>
+<body data-theme="dark">
+
+
+<header>
+<!-- THEME TOGGLE BUTTON -->
+<div class="theme-toggle">
+  <button class="toggle-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+  <span class="toggle-label">Theme</span>
+</div>
+  <div class="student-card">
+    <div class="student-avatar">AH</div>
+    <div class="student-info">
+      <h3>Abrham Assefa Habtamu</h3>
+      <p>NLP Course — General Assignment (Tasks A, B &amp; C)</p>
+      <div class="student-id">🪪 ID: VR548223</div>
+    </div>
+  </div>
+  <h1>🧠 NLP Assignment Dashboard</h1>
+  <p class="sub">Reuters Corpus (10,788 articles) · Python · NLTK · scikit-learn</p>
+  <div class="badges">
+    <span class="badge ba">🔵 Task A — Clustering</span>
+    <span class="badge bb">🟡 Task B — TF-IDF</span>
+    <span class="badge bc">🟢 Task C — Similarity</span>
+    <span class="badge bd">🔤 Reuters Corpus</span>
+  </div>
+</header>
+
+<nav>
+  <a href="#overview" class="active">📊 Overview</a>
+  <a href="#task-a">🔵 Task A</a>
+  <a href="#task-b">🟡 Task B</a>
+  <a href="#task-c">🟢 Task C</a>
+  <a href="#try-it">⚡ Try It</a>
+</nav>
+
+<div class="con">
+
+<!-- OVERVIEW STATS -->
+<div class="sec" id="overview">
+  <div class="cards" style="margin-top:1rem">
+    <div class="card"><div class="num" id="cnt1" style="color:var(--blue)">0</div><div class="lbl">📰 Reuters Documents</div></div>
+    <div class="card"><div class="num" id="cnt2" style="color:var(--green)">5</div><div class="lbl">🔵 Clusters (Task A)</div></div>
+    <div class="card"><div class="num" id="cnt3" style="color:var(--gold)">20</div><div class="lbl">🟡 Keywords Analyzed</div></div>
+    <div class="card"><div class="num" id="cnt4" style="color:var(--purple)">0</div><div class="lbl">🔤 Vocabulary Size</div></div>
+  </div>
+</div>
+
+<!-- TASK A -->
+<div class="sec" id="task-a">
+  <div class="sh"><span class="task-num">🔵</span><h2 style="color:var(--blue)">Task A — Corpus Clustering</h2></div>
+  <p style="color:var(--muted);margin-bottom:1.2rem;font-size:.9rem">
+    K-Means on L2-normalized TF-IDF vectors = cosine similarity clustering. Click a cluster card to expand its top terms.
+  </p>
+  <div class="cluster-grid">
+    <div class="cluster-card" onclick="toggleCluster(this)" data-id="1">
+      <div class="cc-header">
+        <div class="cc-badge" style="background:#58a6ff22;color:#58a6ff;border:1px solid #58a6ff">Cluster 1</div>
+        <div class="cc-count">1,353 <span>docs</span></div>
+        <div class="cc-arrow">▼</div>
+      </div>
+      <div class="cc-terms"><span class="term-pill">vs</span> <span class="term-pill">net</span> <span class="term-pill">cts</span> <span class="term-pill">shr</span> <span class="term-pill">mln</span> <span class="term-pill">qtr</span> <span class="term-pill">revs</span> <span class="term-pill">lt</span></div>
+      <div class="cc-full" style="display:none">
+        <span class="term-pill full">vs <small>(0.3081)</small></span><span class="term-pill full">net <small>(0.2243)</small></span><span class="term-pill full">cts <small>(0.2103)</small></span><span class="term-pill full">shr <small>(0.1917)</small></span><span class="term-pill full">mln <small>(0.1671)</small></span><span class="term-pill full">qtr <small>(0.1310)</small></span><span class="term-pill full">revs <small>(0.1249)</small></span><span class="term-pill full">lt <small>(0.0794)</small></span><span class="term-pill full">dlrs <small>(0.0780)</small></span><span class="term-pill full">avg <small>(0.0766)</small></span><span class="term-pill full">shrs <small>(0.0757)</small></span><span class="term-pill full">mths <small>(0.0718)</small></span><span class="term-pill full">note <small>(0.0644)</small></span><span class="term-pill full">nine <small>(0.0597)</small></span><span class="term-pill full">inc <small>(0.0538)</small></span>
+      </div>
+    </div>
+    <div class="cluster-card" onclick="toggleCluster(this)" data-id="2">
+      <div class="cc-header">
+        <div class="cc-badge" style="background:#3fb95022;color:#3fb950;border:1px solid #3fb950">Cluster 2</div>
+        <div class="cc-count">4,232 <span>docs</span></div>
+        <div class="cc-arrow">▼</div>
+      </div>
+      <div class="cc-terms"><span class="term-pill">the</span> <span class="term-pill">to</span> <span class="term-pill">in</span> <span class="term-pill">of</span> <span class="term-pill">said</span> <span class="term-pill">and</span> <span class="term-pill">pct</span> <span class="term-pill">at</span></div>
+      <div class="cc-full" style="display:none">
+        <span class="term-pill full">the <small>(0.0704)</small></span><span class="term-pill full">to <small>(0.0537)</small></span><span class="term-pill full">in <small>(0.0529)</small></span><span class="term-pill full">of <small>(0.0482)</small></span><span class="term-pill full">said <small>(0.0443)</small></span><span class="term-pill full">and <small>(0.0413)</small></span><span class="term-pill full">pct <small>(0.0366)</small></span><span class="term-pill full">at <small>(0.0323)</small></span><span class="term-pill full">for <small>(0.0309)</small></span><span class="term-pill full">on <small>(0.0303)</small></span><span class="term-pill full">from <small>(0.0294)</small></span><span class="term-pill full">was <small>(0.0274)</small></span><span class="term-pill full">billion <small>(0.0270)</small></span><span class="term-pill full">bank <small>(0.0266)</small></span><span class="term-pill full">that <small>(0.0262)</small></span>
+      </div>
+    </div>
+    <div class="cluster-card" onclick="toggleCluster(this)" data-id="3">
+      <div class="cc-header">
+        <div class="cc-badge" style="background:#FFD70022;color:#FFD700;border:1px solid #FFD700">Cluster 3</div>
+        <div class="cc-count">3,775 <span>docs</span></div>
+        <div class="cc-arrow">▼</div>
+      </div>
+      <div class="cc-terms"><span class="term-pill">the</span> <span class="term-pill">said</span> <span class="term-pill">of</span> <span class="term-pill">to</span> <span class="term-pill">it</span> <span class="term-pill">lt</span> <span class="term-pill">and</span> <span class="term-pill">company</span></div>
+      <div class="cc-full" style="display:none">
+        <span class="term-pill full">the <small>(0.0641)</small></span><span class="term-pill full">said <small>(0.0546)</small></span><span class="term-pill full">of <small>(0.0544)</small></span><span class="term-pill full">to <small>(0.0538)</small></span><span class="term-pill full">it <small>(0.0506)</small></span><span class="term-pill full">lt <small>(0.0427)</small></span><span class="term-pill full">and <small>(0.0419)</small></span><span class="term-pill full">company <small>(0.0396)</small></span><span class="term-pill full">in <small>(0.0396)</small></span><span class="term-pill full">its <small>(0.0389)</small></span><span class="term-pill full">dlrs <small>(0.0385)</small></span><span class="term-pill full">for <small>(0.0375)</small></span><span class="term-pill full">mln <small>(0.0336)</small></span><span class="term-pill full">inc <small>(0.0324)</small></span><span class="term-pill full">shares <small>(0.0315)</small></span>
+      </div>
+    </div>
+    <div class="cluster-card" onclick="toggleCluster(this)" data-id="4">
+      <div class="cc-header">
+        <div class="cc-badge" style="background:#ff7b7222;color:#ff7b72;border:1px solid #ff7b72">Cluster 4</div>
+        <div class="cc-count">513 <span>docs</span></div>
+        <div class="cc-arrow">▼</div>
+      </div>
+      <div class="cc-terms"><span class="term-pill">cts</span> <span class="term-pill">div</span> <span class="term-pill">qtly</span> <span class="term-pill">record</span> <span class="term-pill">pay</span> <span class="term-pill">prior</span> <span class="term-pill">april</span> <span class="term-pill">vs</span></div>
+      <div class="cc-full" style="display:none">
+        <span class="term-pill full">cts <small>(0.2276)</small></span><span class="term-pill full">div <small>(0.2259)</small></span><span class="term-pill full">qtly <small>(0.2255)</small></span><span class="term-pill full">record <small>(0.1925)</small></span><span class="term-pill full">pay <small>(0.1868)</small></span><span class="term-pill full">prior <small>(0.1809)</small></span><span class="term-pill full">april <small>(0.1527)</small></span><span class="term-pill full">vs <small>(0.1399)</small></span><span class="term-pill full">sets <small>(0.0986)</small></span><span class="term-pill full">dividend <small>(0.0927)</small></span><span class="term-pill full">lt <small>(0.0897)</small></span><span class="term-pill full">payout <small>(0.0889)</small></span><span class="term-pill full">quarterly <small>(0.0817)</small></span><span class="term-pill full">march <small>(0.0816)</small></span><span class="term-pill full">may <small>(0.0690)</small></span>
+      </div>
+    </div>
+    <div class="cluster-card" onclick="toggleCluster(this)" data-id="5">
+      <div class="cc-header">
+        <div class="cc-badge" style="background:#d2a8ff22;color:#d2a8ff;border:1px solid #d2a8ff">Cluster 5</div>
+        <div class="cc-count">915 <span>docs</span></div>
+        <div class="cc-arrow">▼</div>
+      </div>
+      <div class="cc-terms"><span class="term-pill">loss</span> <span class="term-pill">vs</span> <span class="term-pill">profit</span> <span class="term-pill">cts</span> <span class="term-pill">net</span> <span class="term-pill">shr</span> <span class="term-pill">revs</span> <span class="term-pill">mln</span></div>
+      <div class="cc-full" style="display:none">
+        <span class="term-pill full">loss <small>(0.3159)</small></span><span class="term-pill full">vs <small>(0.2558)</small></span><span class="term-pill full">profit <small>(0.1928)</small></span><span class="term-pill full">cts <small>(0.1727)</small></span><span class="term-pill full">net <small>(0.1715)</small></span><span class="term-pill full">shr <small>(0.1598)</small></span><span class="term-pill full">revs <small>(0.1320)</small></span><span class="term-pill full">mln <small>(0.1200)</small></span><span class="term-pill full">qtr <small>(0.1044)</small></span><span class="term-pill full">dlrs <small>(0.0812)</small></span><span class="term-pill full">oper <small>(0.0756)</small></span><span class="term-pill full">year <small>(0.0722)</small></span><span class="term-pill full">note <small>(0.0710)</small></span><span class="term-pill full">lt <small>(0.0667)</small></span><span class="term-pill full">avg <small>(0.0566)</small></span>
+      </div>
+    </div></div>
+  <div class="g2">
+    <div class="cb"><h3>📊 Cluster Distribution</h3><div id="pie_a"></div></div>
+    <div class="cb"><h3>📈 Top Terms per Cluster</h3><div id="bar_a"></div></div>
+  </div>
+  <div class="cb"><p class="hint">Run NLP_Assignment.ipynb in Colab to generate charts here.</p></div>
+  
+</div>
+
+<!-- TASK B -->
+<div class="sec" id="task-b">
+  <div class="sh"><span class="task-num">🟡</span><h2 style="color:var(--gold)">Task B — Keyword TF-IDF Classification</h2></div>
+  <p style="color:var(--muted);margin-bottom:1.2rem;font-size:.9rem">
+    10-80-10 percentile rule: ⭐ TOP (≥90th) · 📊 MEDIUM (10th–90th) · 🔻 BOTTOM (&lt;10th).
+    Use the filters and search below to explore.
+  </p>
+  <div class="cards" style="margin-bottom:1.5rem">
+    <div class="card"><div class="num" style="color:var(--gold)">2</div><div class="lbl">⭐ TOP keywords</div></div>
+    <div class="card"><div class="num" style="color:var(--cyan)">16</div><div class="lbl">📊 MEDIUM keywords</div></div>
+    <div class="card"><div class="num" style="color:var(--red)">2</div><div class="lbl">🔻 BOTTOM keywords</div></div>
+    <div class="card"><div class="num" style="color:var(--muted);font-size:1.1rem">0.0765 / 0.1311</div><div class="lbl">P10 / P90 thresholds</div></div>
+  </div>
+  <div class="g2">
+    <div class="cb"><h3>📊 TF-IDF Scores</h3><div id="bar_b"></div></div>
+    <div class="cb">
+      <h3>🔍 Keyword Results</h3>
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterKw('ALL',this)">All</button>
+        <button class="filter-btn f-top" onclick="filterKw('TOP',this)">⭐ TOP</button>
+        <button class="filter-btn f-mid" onclick="filterKw('MEDIUM',this)">📊 MEDIUM</button>
+        <button class="filter-btn f-bot" onclick="filterKw('BOTTOM',this)">🔻 BOTTOM</button>
+        <input class="search-input" id="kwSearch" placeholder="🔍 Search..." oninput="searchKw(this.value)"/>
+      </div>
+      <div style="overflow:auto;max-height:320px">
+        <table class="kwt" id="kwTable">
+          <tr><th>Keyword</th><th>TF-IDF Score</th><th>Class</th></tr>
+          <tr data-label="TOP" data-kw="profit"><td><b>profit</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:100%"></div><span>0.193029</span></div></td><td><span class="pill-top">⭐ TOP</span></td></tr>
+<tr data-label="TOP" data-kw="gold"><td><b>gold</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:82%"></div><span>0.159290</span></div></td><td><span class="pill-top">⭐ TOP</span></td></tr>
+<tr data-label="MEDIUM" data-kw="merger"><td><b>merger</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:66%"></div><span>0.127978</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="inflation"><td><b>inflation</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:61%"></div><span>0.119067</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="bank"><td><b>bank</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:60%"></div><span>0.116543</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="energy"><td><b>energy</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:60%"></div><span>0.116143</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="tax"><td><b>tax</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:55%"></div><span>0.107564</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="dollar"><td><b>dollar</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:55%"></div><span>0.107402</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="oil"><td><b>oil</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:54%"></div><span>0.104826</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="rate"><td><b>rate</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:53%"></div><span>0.104009</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="import"><td><b>import</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:49%"></div><span>0.095063</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="export"><td><b>export</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:49%"></div><span>0.094703</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="stock"><td><b>stock</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:48%"></div><span>0.093114</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="currency"><td><b>currency</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:47%"></div><span>0.092017</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="trade"><td><b>trade</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:45%"></div><span>0.088441</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="debt"><td><b>debt</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:44%"></div><span>0.086840</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="economy"><td><b>economy</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:41%"></div><span>0.080283</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="MEDIUM" data-kw="price"><td><b>price</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:39%"></div><span>0.076908</span></div></td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr data-label="BOTTOM" data-kw="market"><td><b>market</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:37%"></div><span>0.073239</span></div></td><td><span class="pill-bottom">🔻 BOTTOM</span></td></tr>
+<tr data-label="BOTTOM" data-kw="government"><td><b>government</b></td><td><div class="score-bar-wrap"><div class="score-bar" style="width:36%"></div><span>0.069847</span></div></td><td><span class="pill-bottom">🔻 BOTTOM</span></td></tr>
+
+        </table>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+<!-- TASK C -->
+<div class="sec" id="task-c">
+  <div class="sh"><span class="task-num">🟢</span><h2 style="color:var(--green)">Task C — Document Similarity Search</h2></div>
+  <p style="color:var(--muted);margin-bottom:1.2rem;font-size:.9rem">
+    Cosine similarity search on the full Reuters corpus — <b>no stopword removal</b> (per assignment spec).
+    Given a document + percentile, returns all corpus docs above that similarity threshold.
+  </p>
+  <div class="cb" style="border-left:3px solid var(--green)">
+    <div style="color:var(--muted);font-size:.82rem;font-weight:600;margin-bottom:.4rem">SAMPLE QUERY</div>
+    <div style="font-style:italic;line-height:1.7;color:var(--text)">
+      "Oil prices surged today as OPEC agreed to cut production significantly.
+       The crude market saw strong gains and the dollar weakened against major currencies.
+       Energy stocks rose sharply on the news."
+    </div>
+  </div>
+  
+</div>
+
+<!-- INTERACTIVE TRY IT -->
+<div class="sec" id="try-it">
+  <div class="sh"><span class="task-num">⚡</span><h2 style="color:var(--purple)">Try It Yourself</h2></div>
+
+  <div class="analyzer">
+    <h3>🔤 Live Keyword Analyzer</h3>
+    <p class="sub">Type any English word and instantly see its TF-IDF score and classification on the Reuters corpus.</p>
+    <div class="input-row">
+      <input class="kw-input" id="liveInput" placeholder="e.g. inflation, revenue, acquisition..."
+             onkeydown="if(event.key==='Enter') analyzeLive()"/>
+      <button class="btn btn-blue" onclick="analyzeLive()">Analyze →</button>
+      <button class="btn btn-ghost" onclick="randomWord()">🎲 Random</button>
+    </div>
+    <div class="result-box" id="liveResult">
+      <div class="result-icon" id="resIcon"></div>
+      <div>
+        <div class="result-word" id="resWord"></div>
+        <div class="result-score" id="resScore"></div>
+        <div id="resBar" style="margin-top:.5rem;height:8px;border-radius:4px;width:0;transition:width .6s ease"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="analyzer" style="border-color:#3fb95033">
+    <h3 style="color:var(--green)">📡 Cluster Predictor</h3>
+    <p class="sub">Enter some text and see which cluster it most resembles based on top term overlap.</p>
+    <div class="input-row" style="align-items:flex-start">
+      <textarea class="kw-input" id="clusterInput" rows="3" style="resize:vertical"
+        placeholder="Paste any text here...">Oil prices rose as OPEC cut production and energy markets reacted.</textarea>
+      <button class="btn btn-blue" onclick="predictCluster()" style="align-self:flex-end">Predict Cluster →</button>
+    </div>
+    <div class="result-box" id="clusterResult" style="align-items:flex-start;flex-direction:column;gap:.6rem">
+      <div id="clusterOut"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /con -->
+
+<footer>
+  <div class="student-footer">Abrham Assefa Habtamu &nbsp;·&nbsp; Student ID: VR548223</div>
+  NLP Course Assignment — General Tasks A, B &amp; C<br/>
+  Reuters Corpus · Python · NLTK · scikit-learn · matplotlib<br/>
+  <a href="https://github.com/abrham-cyper/NLP-2" target="_blank"
+     style="color:var(--blue);text-decoration:none">📁 GitHub Repository</a>
+</footer>
+
+
+<script>
+// ── EMBEDDED DATA ──────────────────────────────────────────
+const VOCAB = {"dasa": 0.795875, "juno": 0.776414, "rhnb": 0.775341, "vlsi": 0.768107, "sjw": 0.762463, "imre": 0.756443, "betz": 0.755961, "nbd": 0.742124, "nch": 0.737774, "nike": 0.736209, "bsd": 0.731953, "roto": 0.727089, "boatmen": 0.716721, "amre": 0.709621, "crain": 0.705137, "wajax": 0.692104, "ctws": 0.690682, "winterhalter": 0.687887, "fcom": 0.685767, "whirlpool": 0.683827, "jwp": 0.683416, "clothiers": 0.683279, "mar": 0.682074, "urs": 0.680194, "chauvco": 0.67518, "enex": 0.674461, "empi": 0.674379, "autrex": 0.673528, "bii": 0.67029, "joule": 0.669584, "invitron": 0.668985, "tote": 0.66694, "paloma": 0.6647, "advo": 0.664354, "fpl": 0.663098, "lewiston": 0.660697, "pembina": 0.660171, "ault": 0.659506, "guillevin": 0.658898, "strathfield": 0.658794, "nixdorf": 0.657907, "scat": 0.657862, "scicom": 0.656322, "bdm": 0.654786, "natioonal": 0.654267, "pnbt": 0.653909, "innopac": 0.652836, "apr": 0.652192, "ageements": 0.647468, "cfcf": 0.646942, "opr": 0.646935, "cimarron": 0.646384, "wyse": 0.645945, "bicc": 0.643336, "gca": 0.642052, "culp": 0.64039, "tdk": 0.639533, "dryclean": 0.639454, "bowne": 0.638922, "signtech": 0.637749, "vtx": 0.632603, "hexcel": 0.631114, "eldorado": 0.630646, "fabricators": 0.630315, "trilon": 0.630301, "paxar": 0.630235, "hogan": 0.629523, "mirtone": 0.627262, "primebank": 0.627141, "phh": 0.625741, "shsb": 0.625651, "plasti": 0.624562, "multivest": 0.624366, "agf": 0.623605, "cuurent": 0.622827, "domco": 0.620577, "dorsey": 0.619704, "stephan": 0.616698, "possis": 0.614123, "renaissance": 0.61369, "ncr": 0.613438, "carrolton": 0.613145, "thera": 0.612855, "metrobanc": 0.612361, "seeq": 0.612133, "nfs": 0.611916, "engelhard": 0.611606, "immucor": 0.611155, "cabre": 0.610777, "sqd": 0.610583, "liebert": 0.610379, "circus": 0.60998, "sanivan": 0.609008, "thor": 0.608975, "farah": 0.608112, "ajusted": 0.607383, "echolab": 0.606301, "avx": 0.605181, "wedgestone": 0.604609, "banponce": 0.604584, "bdep": 0.604584, "dexleigh": 0.603305, "txl": 0.601487, "tridel": 0.600914, "enzo": 0.600876, "nwa": 0.600159, "tcf": 0.599795, "acklands": 0.599709, "toyobo": 0.599687, "thl": 0.598656, "kdi": 0.598537, "chainwide": 0.598263, "danzar": 0.597692, "canrad": 0.59743, "whippany": 0.595564, "toot": 0.595035, "hre": 0.593331, "dunhill": 0.593237, "bower": 0.593166, "startel": 0.591208, "sanf": 0.590497, "perceptive": 0.590363, "derlan": 0.590164, "premdor": 0.589991, "emerald": 0.589813, "intermetco": 0.589232, "baton": 0.589026, "saxon": 0.589017, "ibcp": 0.588928, "stuarts": 0.588575, "bamberger": 0.587947, "woburn": 0.587651, "thoratec": 0.58703, "viatech": 0.585939, "vtk": 0.585939, "celltronics": 0.585636, "hyponex": 0.584957, "hypx": 0.584957, "lond": 0.58476, "nbi": 0.584757, "cade": 0.584581, "ptsi": 0.584534, "fab": 0.583619, "cper": 0.582647, "interco": 0.582293, "tsys": 0.582196, "mem": 0.582015, "mead": 0.58068, "wks": 0.580592, "edac": 0.580451, "wurlitzer": 0.580391, "paco": 0.579913, "innovex": 0.578315, "pyro": 0.578181, "wearhouse": 0.577453, "ione": 0.576672, "kiddie": 0.575732, "biogen": 0.574878, "ameribanc": 0.574454, "msft": 0.574418, "dionics": 0.572835, "dion": 0.572835, "tcby": 0.572361, "gendis": 0.571177, "gdfy": 0.570576, "hubco": 0.570247, "hco": 0.570247, "newcor": 0.570214, "temco": 0.570169, "gruen": 0.569765, "sidy": 0.569536, "gummi": 0.569282, "noverco": 0.569259, "ahe": 0.56868, "tecsyn": 0.568092, "ust": 0.567831, "gway": 0.56753, "mcdowell": 0.567254, "isol": 0.567106, "saur": 0.567105, "kingsbridge": 0.566716, "sissonville": 0.56663, "trilogy": 0.566601, "potlatch": 0.566094, "pch": 0.566094, "nicor": 0.565702, "entrepo": 0.565259, "petrominerals": 0.564027, "firstbanc": 0.563543, "fboh": 0.563543, "rubbertech": 0.56317, "okc": 0.562547, "castone": 0.562541, "biotechnologies": 0.562243, "piosec": 0.561644, "mobex": 0.561526, "drch": 0.561309, "oakite": 0.561025, "okt": 0.561025, "kiena": 0.561011, "tcw": 0.56068, "unicoa": 0.560611, "neo": 0.560203, "rtek": 0.560109, "nordson": 0.560063, "hazleton": 0.558581, "cbtf": 0.558283, "gro": 0.558272, "waccamaw": 0.558189, "erc": 0.55818, "fhlmc": 0.558072, "augat": 0.55605, "parc": 0.555819, "abbott": 0.555567, "checkrobot": 0.554475, "detc": 0.554134, "tw": 0.554124, "genova": 0.553908, "deps": 0.553664, "ackerly": 0.553319, "millipore": 0.552716, "delaval": 0.551764, "imsi": 0.551681, "mtech": 0.5515, "actp": 0.551425, "kirschner": 0.550861, "hillenbrand": 0.550408, "steinhardt": 0.549671, "nps": 0.549502, "whr": 0.54878, "standex": 0.548708, "msr": 0.548374, "rubbermaid": 0.548243, "fivc": 0.547791, "nuclad": 0.547746, "northview": 0.547035, "vishay": 0.546988, "powr": 0.546856, "oakleaf": 0.546472, "weyerhaeuser": 0.546211, "nvbc": 0.546056, "ranco": 0.544539, "ridesharing": 0.544405, "texon": 0.544224, "pcqt": 0.54416, "tnii": 0.543753, "std": 0.543376, "ctyn": 0.543354, "howden": 0.542919, "fmbc": 0.542582, "seton": 0.542571, "altex": 0.541422, "cayuga": 0.54131, "cayb": 0.54131, "servo": 0.541212, "sca": 0.541212, "amsouth": 0.541079, "horizons": 0.541073, "ladd": 0.540953, "citytrust": 0.540537, "citr": 0.540537, "recesses": 0.540537, "nvhomes": 0.539718, "harland": 0.539691, "jh": 0.539691, "megavest": 0.53963, "bsn": 0.539433, "initials": 0.538931, "bkla": 0.538764, "lana": 0.538635, "oe": 0.53854, "certron": 0.538258, "domtar": 0.537772, "hemodynamics": 0.537613, "hmdy": 0.537613, "valtek": 0.537429, "westronic": 0.537335, "wstx": 0.537335, "powerine": 0.536826, "denatured": 0.536727, "devtek": 0.536581, "ilfc": 0.536294, "ffom": 0.536221, "mccrk": 0.536175, "ifr": 0.535851, "ifrs": 0.535851, "icbi": 0.535797, "robeson": 0.535717, "citadel": 0.535518, "barco": 0.535309, "fss": 0.535217, "alfl": 0.534996, "teleglobe": 0.534864, "reckitt": 0.533686, "colman": 0.533686, "clorox": 0.533666, "slat": 0.53335, "rexcom": 0.53326, "herley": 0.532913, "dumez": 0.53261, "dura": 0.532341, "tiverton": 0.532033, "prov": 0.532029, "jax": 0.532021, "britton": 0.531445, "unifast": 0.531372, "ufst": 0.531372, "fmd": 0.531121, "mrll": 0.531113, "lab": 0.531103, "symtron": 0.531048, "energen": 0.530829, "frt": 0.530253, "animed": 0.529873, "fbx": 0.529649, "fbxc": 0.529649, "bayou": 0.529409, "fcola": 0.529146, "arnox": 0.528974, "dauphin": 0.528954, "escudos": 0.528032, "asbestec": 0.528006, "abio": 0.527637, "bard": 0.527357, "mechtron": 0.527286, "mcht": 0.527286, "barricini": 0.527225, "mtrus": 0.526896, "kimbark": 0.526896, "kimb": 0.526896, "wht": 0.526799, "psbk": 0.526622, "datx": 0.52662, "ciro": 0.52661, "ciri": 0.52661, "mannville": 0.526317, "mog": 0.526317, "oncor": 0.526291, "oncr": 0.526291, "photronics": 0.525947, "phot": 0.525947, "walgreen": 0.525812, "servotronics": 0.525677, "donegal": 0.525636, "triad": 0.525635, "petrolite": 0.525587, "plit": 0.525587, "eg": 0.525185, "midlantic": 0.524683, "berkey": 0.524504, "nondefense": 0.524125, "wdsa": 0.524104, "svic": 0.52404, "esy": 0.524031, "tvi": 0.523892, "tvie": 0.523892, "nr": 0.523856, "showboat": 0.523816, "gwsb": 0.523688, "kelsey": 0.523659, "ranger": 0.52361, "idbx": 0.523122, "kellwood": 0.523091, "sithe": 0.522941, "endata": 0.522783, "payn": 0.522724, "cadillac": 0.522707, "fairview": 0.522707, "brooksville": 0.522689, "rlc": 0.522226, "fgrp": 0.522009, "mnco": 0.521871, "psr": 0.521846, "liposome": 0.521716, "kroger": 0.521534, "amos": 0.521206, "cottrell": 0.521054, "westworld": 0.521008, "polycast": 0.520865, "agrea": 0.520576, "jstn": 0.520373, "kappa": 0.520322, "intercon": 0.520143, "facet": 0.52012, "poclain": 0.520012, "instron": 0.519989, "dmcb": 0.519713, "tierco": 0.519303, "wbat": 0.519129, "aw": 0.519016, "awcsa": 0.519016, "seashore": 0.518935, "handleman": 0.518835, "hdl": 0.518835, "ppg": 0.518792, "aileen": 0.518741, "aee": 0.518741, "mfgi": 0.518724, "petrosurance": 0.518472, "cti": 0.518366, "canton": 0.518248, "stifel": 0.518167, "triumph": 0.517314, "dba": 0.517265, "oshawa": 0.51724, "pds": 0.517081, "tnls": 0.51708, "weisfield": 0.517004, "digitech": 0.516963, "dgtc": 0.516963, "mrt": 0.516879, "nvis": 0.51682, "csbn": 0.516813, "telebyte": 0.516738, "tbti": 0.516738, "weston": 0.516685, "frm": 0.516679, "courtaulds": 0.516375, "qchm": 0.516114, "rsto": 0.515727, "novamin": 0.515607, "exovir": 0.51556, "rmi": 0.51551, "tmc": 0.515387, "ushi": 0.515347, "doskocil": 0.515305, "bashaw": 0.515134, "erskine": 0.515134, "fmdc": 0.51498, "pll": 0.514666, "sterilization": 0.51449, "msti": 0.51449, "yellowknife": 0.514344, "stbk": 0.514264, "lfg": 0.514171, "sealed": 0.514077, "ayp": 0.513494, "npd": 0.513401, "rockies": 0.513368, "noland": 0.513243, "nold": 0.513243, "sfy": 0.513192, "conchemco": 0.513078, "ckc": 0.513078, "jewelmasters": 0.512988, "bachelor": 0.512924, "jacor": 0.512698, "ate": 0.512541, "misunderstood": 0.512338, "ncbm": 0.512281, "cfib": 0.512218, "mkor": 0.512045, "shelard": 0.511753, "airco": 0.511719, "centurion": 0.511253, "enserch": 0.5112, "ens": 0.5112, "midivest": 0.511192, "maytag": 0.511027, "kennametal": 0.510843, "kmt": 0.510843, "aidc": 0.510797, "arundel": 0.510744, "arl": 0.510744, "nsco": 0.51073, "filtertek": 0.510704, "ftk": 0.510704, "emulex": 0.51066, "emlx": 0.51066, "excel": 0.510645, "carver": 0.51059, "cavr": 0.51059, "moet": 0.510537, "hennessy": 0.510537, "bsco": 0.510058, "interdyne": 0.510002, "idyn": 0.510002, "colorocs": 0.509986, "clrx": 0.509986, "tokheim": 0.509923, "mikron": 0.509785, "mikr": 0.509785, "ziegler": 0.509585, "zegl": 0.509585, "pittston": 0.509485, "tbg": 0.509482, "arvin": 0.5094, "uslico": 0.509356, "usvc": 0.509356, "bmc": 0.509299, "ryland": 0.508889, "ryl": 0.508889, "masco": 0.50874, "glamis": 0.508495, "craftmatic": 0.508471, "contour": 0.508471, "hfga": 0.50827, "metcap": 0.50801, "unitil": 0.507924, "utl": 0.507924, "odsi": 0.507539, "srp": 0.507453, "brinkmann": 0.507368, "markel": 0.50736, "makl": 0.50736, "constellation": 0.507183, "cstl": 0.507183, "regis": 0.507064, "rgis": 0.507064, "gdxa": 0.507023, "nwng": 0.506944, "smed": 0.506848, "bramall": 0.506722, "mocon": 0.506719, "amgd": 0.506627, "watts": 0.506337, "watta": 0.506337, "centerior": 0.506252, "cx": 0.506252, "atoka": 0.506229, "oldham": 0.506177, "epitope": 0.506142, "epto": 0.506142, "stanhome": 0.505997, "sth": 0.505997, "confidata": 0.50578, "electrohome": 0.505769, "ffsh": 0.505696, "talbot": 0.505563, "duriron": 0.505551, "unibancorp": 0.505526, "ubcp": 0.505526, "gerber": 0.505309, "elmg": 0.505241, "ufc": 0.505062, "nbbs": 0.504954, "nsp": 0.504951, "mor": 0.504837, "hmi": 0.504837, "alk": 0.504595, "aati": 0.504578, "hormel": 0.504536, "ntt": 0.504513, "cpt": 0.504311, "cptc": 0.504311, "holleb": 0.504174, "assn": 0.504174, "pittway": 0.504172, "pry": 0.504172, "finlays": 0.504032, "wgl": 0.50381, "diebold": 0.503744, "dbd": 0.503744, "parkway": 0.503687, "pkwy": 0.503687, "sterivet": 0.503498, "calmar": 0.503442, "brascan": 0.503422, "brs": 0.503422, "athey": 0.503327, "rowe": 0.503194, "microdyme": 0.503039, "vstr": 0.503, "sfcp": 0.502993, "ior": 0.502821, "montauk": 0.502811, "mcc": 0.502811, "sybron": 0.502773, "burmah": 0.502598, "orb": 0.502347, "mcmc": 0.502187, "bloedel": 0.50216, "ctp": 0.502083, "eateries": 0.501909, "eats": 0.501909, "conant": 0.501904, "ivey": 0.501656, "photronic": 0.501551, "plab": 0.501551, "plm": 0.501373, "exchanger": 0.501234, "knutson": 0.500881, "bred": 0.500773, "pacers": 0.500773, "microsemi": 0.500745, "overmyer": 0.500567, "omco": 0.500567, "seacoast": 0.500468, "sbcf": 0.500468, "awk": 0.500412, "borden": 0.500371, "rte": 0.500349, "computrac": 0.50033, "trus": 0.500019, "joist": 0.500019, "andr": 0.499915, "lesco": 0.499868, "lsco": 0.499868, "varity": 0.499824, "sftpr": 0.499608, "mds": 0.499451, "carme": 0.499415, "nesp": 0.499294, "hcc": 0.499154, "hcci": 0.499154, "buffton": 0.499065, "jude": 0.498665, "nesb": 0.498494, "cnb": 0.498376, "cnbe": 0.498376, "noel": 0.49837, "nol": 0.49837, "dutues": 0.498359, "wesbanco": 0.498319, "pnu": 0.498313, "tant": 0.498106, "stationers": 0.498064, "bluefield": 0.497893, "cpn": 0.497837, "hnat": 0.497771, "calny": 0.497427, "mitek": 0.497212, "auxton": 0.497154, "southernnet": 0.497151, "sout": 0.497151, "abga": 0.497048, "cinram": 0.49698, "spendthrift": 0.496841, "phcc": 0.496837, "stearine": 0.496834, "ventra": 0.496797, "harsco": 0.496699, "hsc": 0.496699, "gglf": 0.496648, "astrotech": 0.496537, "sahlen": 0.496459, "fg": 0.496447, "nucor": 0.496393, "nue": 0.496393, "hun": 0.49637, "fitchburg": 0.496309, "fge": 0.496309, "maui": 0.496136, "pinapple": 0.496136, "grindings": 0.496048, "lazere": 0.495893, "datron": 0.495842, "bryn": 0.495837, "mawr": 0.495837, "graco": 0.495733, "orbit": 0.49562, "prm": 0.495494, "bounty": 0.495444, "nbty": 0.495444, "technitrol": 0.495373, "tnl": 0.495373, "rockefeller": 0.495229, "esx": 0.495218, "vist": 0.495178, "smartnames": 0.495148, "amerford": 0.495025, "tss": 0.494675, "seedman": 0.494675, "vti": 0.49445, "micronetics": 0.494364, "zro": 0.49422, "merrimac": 0.494208, "mmac": 0.494208, "merry": 0.494118, "upen": 0.494048, "monoclonal": 0.494026, "antibodies": 0.494026, "clary": 0.493975, "inverness": 0.493952, "authorises": 0.493784, "bork": 0.493641, "dolr": 0.493593, "dotronix": 0.493522, "hzb": 0.493489, "vncp": 0.493434, "altos": 0.493331, "alto": 0.493331, "rcord": 0.493181, "ecusta": 0.492992, "chw": 0.49299, "ducommun": 0.49285, "fff": 0.492622, "drco": 0.492354, "sundstrand": 0.492066, "sns": 0.492066, "wmd": 0.492, "omission": 0.491942, "clarostat": 0.491933, "cheetham": 0.491892, "textron": 0.491883, "stanwell": 0.491811, "weis": 0.491327, "labatt": 0.491301, "humana": 0.491091, "bse": 0.491087, "clair": 0.491026, "wallpaper": 0.491026, "faygo": 0.490852, "comshare": 0.490829, "csre": 0.490829, "mtly": 0.490809, "kel": 0.49077, "instinet": 0.490748, "measurex": 0.490741, "tylan": 0.49065, "agritech": 0.490294, "brzt": 0.490294, "stepan": 0.490174, "scl": 0.490174, "bemis": 0.490174, "bms": 0.490174, "asst": 0.490152, "dcny": 0.490108, "infortext": 0.490069, "bic": 0.489981, "southington": 0.489974, "ssbb": 0.489974, "lfbr": 0.489881, "raym": 0.489542, "flae": 0.48953, "unidare": 0.489406, "bowl": 0.489389, "bwla": 0.489389, "mcchip": 0.489378, "stuh": 0.489324, "desoto": 0.489212, "mclain": 0.48918, "snat": 0.489072, "vance": 0.489057, "eavn": 0.489057, "coloroll": 0.489032, "lilco": 0.489012, "teleproductions": 0.488987, "nwtl": 0.488987, "abbett": 0.488964, "bgbr": 0.488947, "fegp": 0.488674, "kemc": 0.488533, "chubb": 0.488193, "firstier": 0.488174, "frst": 0.488174, "minorco": 0.488082, "desptp": 0.487981, "omc": 0.487981, "sis": 0.487894, "dunkin": 0.487778, "donuts": 0.487778, "dunk": 0.487778, "eua": 0.487699, "synalloy": 0.487573, "elsinore": 0.487479, "itt": 0.487418, "aron": 0.487323, "reinstates": 0.487295, "alatenn": 0.487235, "atng": 0.487235, "beauticontrol": 0.487087, "buti": 0.487087, "vascular": 0.486848, "dateline": 0.486398, "perini": 0.486364, "mrdn": 0.486277, "dexter": 0.486221, "dex": 0.486221, "canam": 0.486202, "cclr": 0.486132, "gti": 0.486054, "naturalite": 0.485801, "scimed": 0.485774, "gandalf": 0.485766, "safecard": 0.485643, "diceon": 0.485636, "kbh": 0.485616, "designers": 0.48535, "taka": 0.4853, "trimedyne": 0.484887, "interpharm": 0.484868, "harleysville": 0.484691, "geodynamics": 0.484614, "gdyn": 0.484614, "obci": 0.484556, "asamera": 0.484414, "erickson": 0.484304, "teq": 0.484256, "bmet": 0.484218, "nash": 0.484199, "finch": 0.484199, "lotoquik": 0.48411, "sl": 0.484067, "intermark": 0.484046, "lxbk": 0.484, "gen": 0.483999, "reader": 0.483912, "petcord": 0.483824, "mtp": 0.483756, "lnce": 0.483628, "maratech": 0.4836, "porta": 0.483104, "timex": 0.482897, "mfc": 0.482871, "unifirst": 0.482862, "unf": 0.482862, "tbp": 0.482804, "keltic": 0.482737, "athlone": 0.482726, "ath": 0.482726, "solmecs": 0.482638, "versar": 0.48263, "fuqua": 0.48262, "fqa": 0.48262, "porex": 0.482595, "analogic": 0.482464, "alog": 0.482464, "pitcher": 0.482304, "epi": 0.482304, "ssoa": 0.482272, "redkin": 0.482161, "rdkn": 0.482161, "westerbeke": 0.482142, "wtkb": 0.482142, "cspi": 0.482133, "wpl": 0.482107, "vanguard": 0.481976, "moto": 0.481944, "sayst": 0.4819, "freightways": 0.481844, "cnf": 0.481844, "sce": 0.48181, "kelley": 0.481809, "jp": 0.481691, "mltf": 0.481589, "noma": 0.48157, "basf": 0.481476, "sceptre": 0.481462, "varlen": 0.481399, "vrln": 0.481399, "ayer": 0.48137, "ffsd": 0.481327, "tradevest": 0.481243, "kasler": 0.481217, "kasl": 0.481217, "comptek": 0.481065, "cmtk": 0.481065, "tssi": 0.480978, "unsa": 0.480804, "mediq": 0.480587, "weatherford": 0.480533, "npn": 0.480497, "volt": 0.480446, "tungsten": 0.480369, "tues": 0.480317, "airlease": 0.480291, "telecredit": 0.480287, "tcrd": 0.480287, "pnv": 0.47994, "temple": 0.47986, "rhd": 0.479809, "scls": 0.479763, "nln": 0.47976, "piccadilly": 0.479745, "picc": 0.479745, "oxm": 0.479565, "ribbons": 0.479184, "arib": 0.479184, "chpk": 0.479086, "gottschalks": 0.479057, "nui": 0.478877, "mcor": 0.47867, "lyts": 0.478626, "trident": 0.478589, "frick": 0.478514, "snet": 0.478452, "burdett": 0.478451, "oar": 0.478175, "butc": 0.478127, "ave": 0.47809, "wab": 0.478017, "arai": 0.477927, "hd": 0.477883, "cinc": 0.477787, "engy": 0.477787, "trw": 0.477702, "zenex": 0.477643, "voplex": 0.477585, "vot": 0.477585, "greenblatt": 0.477306, "kmw": 0.477126, "dep": 0.47679, "depc": 0.47679, "josten": 0.476696, "careercom": 0.476696, "pansophic": 0.47642, "analytichem": 0.476231, "frisch": 0.476132, "frs": 0.476132, "wd": 0.476114, "wdfc": 0.476114, "nucell": 0.47608, "biomedicals": 0.476033, "bimd": 0.476033, "nl": 0.475938, "ginnings": 0.475633, "witco": 0.475612, "wit": 0.475612, "sasco": 0.475416, "nolan": 0.475367, "morse": 0.475337, "cleopatra": 0.475116, "kohlique": 0.475116, "cleo": 0.475116, "marcor": 0.47484, "txu": 0.474769, "rabbit": 0.474639, "amsh": 0.474493, "jmb": 0.474344, "jmbrs": 0.474344, "delchamps": 0.474242, "systematics": 0.474137, "syst": 0.474137, "billboard": 0.474098, "fbgi": 0.474037, "teeter": 0.474005, "sandusky": 0.473987, "boise": 0.473841, "fentress": 0.473776, "bkfr": 0.473776, "finder": 0.473635, "reocrd": 0.473563, "odyssey": 0.473492, "filmpartners": 0.473492, "bangor": 0.473456, "bigb": 0.473416, "webster": 0.473364, "sw": 0.473364, "dsts": 0.473302, "mcandrews": 0.473147, "gals": 0.473116, "rpc": 0.473016, "newscope": 0.47299, "stratus": 0.472953, "stra": 0.472953, "poco": 0.472947, "buckeye": 0.47294, "evergood": 0.472616, "evgd": 0.472616, "verac": 0.472529, "nbsc": 0.47251, "canbra": 0.472445, "nodaway": 0.472315, "nvco": 0.472315, "jhsl": 0.472228, "kenan": 0.472204, "ktco": 0.472204, "ej": 0.472178, "laclede": 0.472134, "lcld": 0.472134, "mpr": 0.472053, "aaica": 0.471987, "aldershot": 0.471983, "muo": 0.471961, "borealis": 0.47188, "faraway": 0.47188, "foil": 0.471819, "coms": 0.471783, "rgcy": 0.471772, "mpmts": 0.471735, "uniforce": 0.4717, "ambrose": 0.471651, "exc": 0.471547, "tenney": 0.471444, "tny": 0.471444, "qntm": 0.47142, "trizec": 0.471354, "redekop": 0.471295, "wrk": 0.471295, "phlcorp": 0.47129, "starrex": 0.470865, "kji": 0.470776, "sesostris": 0.470738, "teva": 0.470726, "promedico": 0.470726, "superdrug": 0.470722, "attleboro": 0.470557, "peroxide": 0.47047, "frostex": 0.470469, "regulary": 0.470362, "microtel": 0.470334, "paragon": 0.47026, "sav": 0.470247, "astra": 0.470199, "hers": 0.47015, "oldr": 0.470024, "ors": 0.470018, "mes": 0.469982, "copr": 0.469851, "muncipal": 0.4696, "milford": 0.469496, "bulcan": 0.46948, "bul": 0.46948, "cortronic": 0.469395, "ctrn": 0.469395, "bayly": 0.468958, "chutes": 0.468958, "yankee": 0.468955, "intek": 0.468837, "idcc": 0.468837, "winchell": 0.468829, "donut": 0.468829, "binks": 0.468803, "pda": 0.468687, "equimark": 0.468407, "alden": 0.468211, "tsr": 0.468167, "tsri": 0.468167, "paralax": 0.468118, "spec": 0.468049, "bqr": 0.467981, "isco": 0.46792, "isko": 0.46792, "electrochemical": 0.46775, "pke": 0.46775, "cmte": 0.467467, "novell": 0.467463, "burpee": 0.467434, "polydex": 0.467425, "polxf": 0.467425, "burndy": 0.467423, "bdc": 0.467423, "nalco": 0.467422, "nlc": 0.467422, "teletrak": 0.467421, "riverhead": 0.467385, "sequoia": 0.46737, "flyfaire": 0.467358, "shefra": 0.467358, "magma": 0.467262, "tm": 0.4672, "krn": 0.467197, "genex": 0.467091, "gnex": 0.467091, "petroleums": 0.467076, "lister": 0.467022, "xicor": 0.466882, "xico": 0.466882, "isc": 0.466845, "iscs": 0.466845, "zenith": 0.466793, "psbn": 0.466744, "comtec": 0.466597, "ameron": 0.466545, "mickelberry": 0.466462, "breast": 0.466231, "termiflex": 0.466144, "tflx": 0.466144, "greetings": 0.466134, "stanadyne": 0.466025, "wilshire": 0.465952, "ccx": 0.465803, "hawkeye": 0.465767, "roxy": 0.46571, "casy": 0.465663, "lifs": 0.465492, "electrospace": 0.46541, "macyro": 0.465329, "rospatch": 0.464983, "ffsm": 0.464913, "sportscene": 0.464657, "cofab": 0.46455, "orbis": 0.464492, "comtrex": 0.464196, "comx": 0.464196, "majr": 0.464148, "healthvest": 0.464136, "spd": 0.464133, "fuse": 0.464034, "belf": 0.464034, "kgl": 0.463997, "osl": 0.463871, "chuquicamata": 0.463672, "gccc": 0.463592, "bfd": 0.463452, "centuri": 0.463312, "brenco": 0.463271, "bren": 0.463271, "kinark": 0.463256, "teloz": 0.463235, "vccn": 0.463207, "powercise": 0.463158, "hillards": 0.463088, "dtc": 0.463049, "cantrex": 0.462984, "adc": 0.462972, "adct": 0.462972, "genovese": 0.462941, "mepc": 0.462892, "allwaste": 0.462857, "cmph": 0.462782, "hurco": 0.462627, "hurc": 0.462627, "saver": 0.462587, "mcginness": 0.462572, "deak": 0.462522, "sigmaform": 0.462436, "sgma": 0.462436, "sharon": 0.462404, "hovnanian": 0.462321, "ftnc": 0.462319, "nmsb": 0.462293, "marcade": 0.462193, "conolog": 0.462186, "cnlg": 0.462186, "thackeray": 0.46206, "thk": 0.46206, "dorn": 0.46183, "vdc": 0.46183, "bd": 0.461765, "riggs": 0.461749, "wone": 0.461618, "qwtr": 0.461618, "nbcc": 0.461507, "geico": 0.461464, "medco": 0.461445, "winley": 0.461404, "sensormatic": 0.461373, "duro": 0.461253, "dur": 0.461253, "biopool": 0.461184, "dynascan": 0.461027, "penteco": 0.460936, "suave": 0.460619, "meth": 0.460495, "jemr": 0.460487, "mtg": 0.460461, "acquisittion": 0.460456, "primark": 0.460334, "pmk": 0.460334, "nca": 0.460304, "ncac": 0.460304, "hytek": 0.460036, "htek": 0.460036, "laurentiis": 0.459887, "ionic": 0.459856, "hambrecht": 0.459794, "acmex": 0.459768, "pebw": 0.459733, "seaxe": 0.459606, "hurghada": 0.459575, "atcor": 0.459537, "memotec": 0.45952, "kero": 0.459504, "hershey": 0.459315, "hso": 0.459315, "sage": 0.459286, "strawbridge": 0.459267, "dyecast": 0.459264, "stringfellow": 0.459223, "lever": 0.459219, "sainsbury": 0.459177, "dibk": 0.459127, "signet": 0.459113, "aetna": 0.45893, "automatix": 0.458889, "aitx": 0.458889, "kampuchea": 0.458749, "aece": 0.458733, "somb": 0.458611, "chiron": 0.458599, "chir": 0.458599, "clothestime": 0.458581, "ctme": 0.458581, "friedman": 0.458546, "frd": 0.458546, "internatio": 0.458428, "jannock": 0.458399, "dtd": 0.458386, "eagleslair": 0.458386, "cherokee": 0.458096, "chke": 0.458096, "countrywide": 0.457911, "avery": 0.457899, "npo": 0.457876, "avon": 0.457778, "artists": 0.457696, "demarkus": 0.457647, "paolo": 0.45749, "killearn": 0.457482, "messidor": 0.457462, "rhodes": 0.457457, "ccb": 0.457401, "lvi": 0.457021, "pantherella": 0.456932, "uap": 0.456912, "genl": 0.456808, "geriatric": 0.456684, "gemc": 0.456684, "frsh": 0.456554, "opeations": 0.456554, "oneok": 0.456513, "oke": 0.456513, "compaq": 0.456309, "shawmut": 0.456299, "csys": 0.456291, "rgs": 0.456269, "rowan": 0.456232, "mst": 0.456207, "ansbacher": 0.456175, "winnipeg": 0.456097, "bg": 0.455941, "geoffrion": 0.455889, "cascade": 0.455861, "arrow": 0.455798, "rivet": 0.45576, "cvr": 0.45576, "enro": 0.455688, "np": 0.455513, "mlle": 0.455485, "roadway": 0.455407, "plazas": 0.455407, "infinity": 0.455348, "cardinal": 0.455273, "meditrust": 0.455086, "autoclave": 0.455059, "aclv": 0.455059, "tronix": 0.454872, "wght": 0.454872, "itxi": 0.454703, "taunton": 0.454689, "rfbk": 0.454672, "struthers": 0.454547, "rowton": 0.45435, "sbr": 0.454332, "hepworth": 0.454005, "catalogue": 0.453699, "asy": 0.453623, "sheldahl": 0.453602, "uccel": 0.453491, "canterbury": 0.45347, "dvl": 0.453327, "graff": 0.453313, "durakon": 0.453249, "datamag": 0.453082, "dmag": 0.453082, "nashua": 0.453079, "acg": 0.453063, "ensource": 0.452949, "eee": 0.452949, "syncor": 0.452908, "rupp": 0.452769, "grc": 0.452769, "ldmf": 0.452702, "bankeast": 0.452627, "usvsp": 0.452492, "fowl": 0.452338, "armonk": 0.452155, "cmc": 0.451922, "minnetonka": 0.451886, "minl": 0.451886, "dataflex": 0.451877, "dflx": 0.451877, "fluorocarbon": 0.451862, "royex": 0.451862, "ndta": 0.451712, "rbc": 0.45168, "goulds": 0.451673, "guld": 0.451673, "webb": 0.451669, "telxon": 0.451591, "admin": 0.451562, "stokely": 0.45154, "stky": 0.45154, "ambac": 0.45143, "mcm": 0.451373, "dwg": 0.451352, "sico": 0.451247, "wfpr": 0.451179, "qrtz": 0.451167, "moller": 0.451151, "mono": 0.45103, "becor": 0.450909, "fbgia": 0.450848, "wolohan": 0.450674, "wlhn": 0.450674, "fertility": 0.450592, "fhl": 0.450484, "ati": 0.450447, "atim": 0.450447, "loctite": 0.450404, "flbk": 0.450373, "haba": 0.450204, "rth": 0.45017, "schwab": 0.45005, "colgate": 0.449978, "palmolive": 0.449978, "cl": 0.449978, "strl": 0.44991, "norstar": 0.449821, "fdo": 0.449789, "kleer": 0.449765, "vu": 0.449765, "medchem": 0.449647, "mdch": 0.449647, "maxtor": 0.449618, "vernitron": 0.449606, "fabri": 0.449478, "fca": 0.449478, "genevieve": 0.449415, "bildner": 0.449403, "petrolane": 0.449313, "newt": 0.449222, "tranzonic": 0.449167, "tnz": 0.449167, "dylex": 0.449125, "alco": 0.449104, "wallboard": 0.449083, "xebec": 0.449027, "tofutti": 0.448864, "agsi": 0.448767, "gypsum": 0.448695, "mischer": 0.448571, "mshr": 0.448571, "jun": 0.448411, "brad": 0.448269, "ragan": 0.448269, "brd": 0.448269, "miniere": 0.448258, "pancontinental": 0.448258, "utsb": 0.4482, "pacer": 0.448164, "centerre": 0.448086, "calfed": 0.448059, "otter": 0.44748, "tail": 0.44748, "ottr": 0.44748, "microbilt": 0.447384, "bilt": 0.447384, "buckhannon": 0.447358, "imtec": 0.447298, "tikes": 0.44714, "nibca": 0.447066, "ptco": 0.447065, "harding": 0.447048, "pcr": 0.446949, "cistron": 0.446902, "dorchester": 0.446877, "hugoton": 0.446877, "dhulz": 0.446877, "devon": 0.446868, "amatil": 0.446812, "digicon": 0.446812, "rotan": 0.446812, "mosle": 0.446812, "treadmills": 0.446793, "opers": 0.446673, "rcm": 0.446623, "rcmt": 0.446623, "oilcake": 0.446603, "ghw": 0.446469, "redlake": 0.446427, "alexanders": 0.446223, "amsy": 0.446194, "primagaz": 0.446163, "mcgrath": 0.446074, "rentcorp": 0.446074, "srfi": 0.445988, "circon": 0.445885, "ccon": 0.445885, "hbw": 0.445844, "atico": 0.445641, "wallace": 0.445615, "benequity": 0.44558, "tdd": 0.445512, "sycamore": 0.445213, "rmj": 0.445188, "alc": 0.445149, "piezo": 0.445088, "thp": 0.444703, "helmerich": 0.444687, "payne": 0.444687, "hp": 0.444687, "ti": 0.444613, "caro": 0.444613, "thous": 0.444257, "parisian": 0.444241, "pasn": 0.444241, "neco": 0.444169, "spie": 0.444023, "batignolles": 0.444023, "angell": 0.443968, "videotron": 0.443921, "imatron": 0.443724, "montrose": 0.443566, "emhart": 0.443538, "fairmount": 0.443519, "fmtc": 0.443519, "maxicare": 0.44343, "raut": 0.443417, "pacificare": 0.44336, "tsk": 0.443216, "avatar": 0.443166, "avtr": 0.443166, "tilney": 0.443143, "mfs": 0.443071, "hermetronics": 0.442952, "staodynamics": 0.442843, "sdyn": 0.442843, "jamesway": 0.442818, "saxton": 0.442815, "saxif": 0.442815, "ain": 0.442715, "elxsi": 0.442649, "elxsf": 0.442649, "abm": 0.442621, "telecast": 0.442546, "monkey": 0.442497, "deb": 0.44241, "pwg": 0.442365, "homestead": 0.442341, "metex": 0.442334, "wpb": 0.442315, "biflyx": 0.442166, "modulaire": 0.442087, "berkshire": 0.441952, "bgas": 0.441952, "glatfelter": 0.441737, "rmedu": 0.441734, "echlin": 0.441682, "helene": 0.441576, "welltech": 0.441553, "crossland": 0.441268, "scnc": 0.441083, "isis": 0.441037, "dravo": 0.440827, "goodmark": 0.440823, "gdmk": 0.440823, "antibioticos": 0.440814, "hosposable": 0.440622, "hosp": 0.440622, "intrawest": 0.440609, "bha": 0.440217, "bhag": 0.440217, "dilulted": 0.440161, "pantera": 0.440125, "sssv": 0.43992, "apreil": 0.439728, "taro": 0.43964, "vit": 0.43964, "tarof": 0.43964, "sua": 0.439612, "celina": 0.439567, "tenera": 0.43949, "tonka": 0.439486, "hoogovens": 0.43947, "fidelcor": 0.439279, "fnlt": 0.439261, "computerland": 0.439164, "pow": 0.439154, "pacn": 0.439089, "berg": 0.438977, "supermac": 0.438977, "ameritech": 0.438839, "ait": 0.438839, "sdhr": 0.438695, "progas": 0.438689, "kmws": 0.438599, "chartwell": 0.43844, "ctwl": 0.43844, "marcxh": 0.438357, "salick": 0.43835, "shci": 0.43835, "ohsc": 0.438174, "timminco": 0.43814, "tca": 0.438103, "tcat": 0.438103, "nursery": 0.438032, "medar": 0.437974, "writer": 0.437775, "wrtc": 0.437775, "marts": 0.437714, "envirosure": 0.437537, "envs": 0.437537, "winland": 0.437523, "ampal": 0.437311, "ais": 0.437311, "chcr": 0.437205, "cbsi": 0.437147, "thermwood": 0.437127, "thm": 0.437127, "cramer": 0.437054, "crmr": 0.437054, "cytrx": 0.437052, "compuscan": 0.437003, "cscn": 0.437003, "adsteam": 0.436952, "almi": 0.4369, "clearview": 0.4369, "knoll": 0.43686, "westport": 0.436763, "cfin": 0.436754, "resdel": 0.436669, "burr": 0.436637, "calmat": 0.436631, "enviropact": 0.43657, "willms": 0.43657, "doco": 0.436531, "finanical": 0.43645, "cstn": 0.43645, "kfl": 0.436441, "ceasars": 0.436394, "chemfix": 0.436253, "concorde": 0.436203, "mwav": 0.436161, "unc": 0.436072, "skippers": 0.436014, "skip": 0.436014, "ipc": 0.435974, "sps": 0.435933, "datarex": 0.435906, "gelch": 0.435906, "cdv": 0.435865, "dataserv": 0.435837, "tlpzz": 0.435835, "pergamon": 0.435695, "qlty": 0.435546, "lsb": 0.435485, "teeco": 0.435053, "henze": 0.435038, "amertek": 0.43502, "atekf": 0.43502, "unr": 0.434891, "unriq": 0.434891, "vogtle": 0.434849, "infodata": 0.434512, "infd": 0.434512, "aep": 0.434495, "aepi": 0.434495, "roastings": 0.434463, "pfr": 0.434377, "brandon": 0.434274, "azure": 0.434263, "techamerica": 0.434199, "tch": 0.434199, "texsun": 0.434189, "evergreen": 0.434178, "jmed": 0.434084, "dowtherm": 0.43393, "flagler": 0.43371, "flgla": 0.43371, "hayes": 0.433694, "qms": 0.433637, "aqm": 0.433637, "lasr": 0.433614, "tseng": 0.433612, "supradur": 0.433463, "supd": 0.433463, "thrifty": 0.433367, "tfty": 0.433367, "rykoff": 0.433354, "sexton": 0.433354, "ryk": 0.433354, "crm": 0.433344, "qtlry": 0.433275, "gwinnett": 0.433225, "marcom": 0.433209, "belkin": 0.433151, "realmerica": 0.432753, "raco": 0.432753, "charming": 0.43275, "shoppes": 0.43275, "chrs": 0.43275, "whipple": 0.432554, "usacafes": 0.432553, "airsensors": 0.432448, "arsn": 0.432448, "nssx": 0.432319, "csii": 0.432298, "rcpts": 0.432205, "waferboard": 0.432111, "destin": 0.432004, "blanks": 0.431657, "lucht": 0.431634, "tajon": 0.431559, "trc": 0.431559, "eights": 0.431505, "amtc": 0.431501, "sealy": 0.431447, "handley": 0.43144, "kaufel": 0.43119, "austec": 0.431187, "amca": 0.431175, "richton": 0.43114, "rihl": 0.43114, "rue": 0.431078, "sandustry": 0.430856, "moulinex": 0.430779, "antonson": 0.430668, "ega": 0.430602, "canandaigua": 0.430461, "cdg": 0.430461, "carloadings": 0.430457, "motel": 0.430341, "overland": 0.430279, "jwi": 0.430201, "jwt": 0.430198, "pyable": 0.430088, "elrc": 0.430018, "tultex": 0.429872, "ttx": 0.429872, "gull": 0.42978, "nestle": 0.429694, "symbion": 0.429671, "tuskaloosa": 0.429584, "gban": 0.42951, "biosearch": 0.4295, "bpmi": 0.4295, "mogul": 0.429487, "fmo": 0.429487, "parsons": 0.429438, "bowlby": 0.429438, "socanav": 0.429362, "osr": 0.42935, "lex": 0.429349, "merlin": 0.429331, "wwp": 0.429247, "northair": 0.429142, "postech": 0.428869, "westamerica": 0.428829, "americus": 0.428757, "acc": 0.428723, "rockport": 0.428475, "adbe": 0.42846, "vicon": 0.428434, "fretter": 0.428412, "fttr": 0.428412, "blockbuster": 0.428367, "westburne": 0.428346, "groundwater": 0.428285, "gwti": 0.428285, "simex": 0.428193, "transtech": 0.428073, "trti": 0.428073, "simsa": 0.428044, "poc": 0.427814, "enzon": 0.42776, "bruca": 0.427756, "intermec": 0.427729, "intr": 0.427729, "webat": 0.427727, "bench": 0.427723, "pagecorp": 0.427715, "dyhm": 0.427699, "willamette": 0.42769, "wmtt": 0.42769, "atlantis": 0.427617, "manac": 0.427587, "torotel": 0.427558, "sebro": 0.427485, "swissair": 0.427412, "digimed": 0.427388, "malrite": 0.42734, "wickes": 0.427273, "psli": 0.427234, "ves": 0.427134, "gus": 0.427091, "napco": 0.427051, "galleria": 0.42695, "penobscot": 0.426863, "ipai": 0.426857, "spiridellis": 0.426714, "xtra": 0.42664, "rentco": 0.42664, "ansett": 0.426635, "claremont": 0.426435, "entourage": 0.42643, "rada": 0.42641, "kurz": 0.4264, "kasch": 0.4264, "cc": 0.426385, "elex": 0.42636, "crellin": 0.426352, "fcs": 0.426317, "goodwood": 0.426316, "raven": 0.426269, "nynex": 0.426257, "twmc": 0.426251, "enfield": 0.426168, "cfb": 0.426137, "schenker": 0.426091, "shos": 0.425994, "monolithic": 0.425987, "mmic": 0.425987, "amrep": 0.425922, "axr": 0.425922, "cxr": 0.425854, "ricoh": 0.425808, "rict": 0.425808, "pms": 0.425797, "torchmark": 0.425758, "carteret": 0.425598, "bonneville": 0.42558, "bpco": 0.42558, "amour": 0.425469, "trailways": 0.425353, "gnt": 0.4253, "gantos": 0.42528, "gtos": 0.42528, "semicon": 0.425126, "castorseed": 0.425022, "datametrics": 0.424886, "dmcz": 0.424886, "csba": 0.424882, "paychex": 0.424784, "payx": 0.424784, "onyx": 0.424649, "nekoosa": 0.424471, "attar": 0.424463, "thunander": 0.424419, "thdr": 0.424419, "silvercrest": 0.424317, "slv": 0.424317, "unitel": 0.424225, "nroc": 0.424221, "pdo": 0.424155, "banister": 0.424149, "donnelly": 0.424069, "corona": 0.423957, "paccar": 0.423626, "miltope": 0.42355, "milt": 0.42355, "astrocom": 0.42354, "acom": 0.42354, "skandia": 0.423474, "nevi": 0.423474, "sbi": 0.423443, "aloha": 0.423409, "healthsouth": 0.423331, "waterman": 0.423131, "geo": 0.423085, "raybestos": 0.42308, "ryfl": 0.423074, "wgo": 0.423056, "dekalb": 0.422984, "irdv": 0.422869, "intelsa": 0.422815, "comerica": 0.422752, "lackawanna": 0.422744, "pic": 0.422737, "picn": 0.422737, "autospa": 0.422662, "napa": 0.422656, "niki": 0.422597, "ptras": 0.422558, "wamu": 0.42246, "banckshares": 0.422415, "vict": 0.422415, "nu": 0.422387, "sdg": 0.422262, "novatronics": 0.422174, "reichhold": 0.422172, "ltlp": 0.422168, "medtronic": 0.422154, "lama": 0.42212, "coulson": 0.42212, "monobloc": 0.422091, "envases": 0.422091, "tesco": 0.422051, "waltham": 0.422046, "wlbk": 0.422046, "trinity": 0.421882, "trn": 0.421882, "quadrex": 0.421753, "quad": 0.421753, "dwpa": 0.421602, "completions": 0.421514, "naarden": 0.421512, "aloette": 0.421414, "alet": 0.421414, "strober": 0.421394, "strb": 0.421394, "sie": 0.42134, "grate": 0.421262, "spartech": 0.421216, "datacard": 0.421199, "geiger": 0.421195, "bnch": 0.421154, "cxts": 0.421154, "anova": 0.421063, "nichols": 0.421002, "grtb": 0.420974, "legg": 0.420845, "rossignol": 0.420787, "albertson": 0.420731, "brnf": 0.420666, "valex": 0.420655, "valp": 0.420655, "tradestar": 0.420589, "kwik": 0.420546, "aca": 0.420529, "schuster": 0.420311, "woodhead": 0.420311, "wmk": 0.420259, "brockway": 0.420242, "metromail": 0.42023, "artistic": 0.420212, "cenergy": 0.420126, "kgs": 0.420097, "nutmeg": 0.419983, "nutm": 0.419983, "sikes": 0.41993, "ska": 0.41993, "webcor": 0.419714, "warrantech": 0.419663, "scan": 0.419582, "colson": 0.419493, "telco": 0.419418, "nederlandse": 0.419275, "papierfabrieken": 0.419275, "invacare": 0.419176, "wings": 0.418951, "kec": 0.418862, "copley": 0.418698, "cop": 0.418698, "nacco": 0.418664, "odetics": 0.418593, "oa": 0.418593, "ob": 0.418593, "renouf": 0.418522, "discus": 0.418437, "sprinkler": 0.418408, "cnsp": 0.418408, "qmed": 0.418346, "seis": 0.418266, "komt": 0.418185, "medtec": 0.418164, "rexham": 0.418157, "valhi": 0.418096, "gemina": 0.418092, "ambrosiano": 0.418092, "norex": 0.41803, "triweb": 0.41803, "carolco": 0.418001, "dynalectron": 0.417937, "refractories": 0.417918, "certificated": 0.417792, "ibcc": 0.417791, "esselte": 0.417785, "icludes": 0.417586, "iban": 0.417555, "anacomp": 0.417505, "ponce": 0.417493, "pfbs": 0.417493, "wsam": 0.417492, "mooring": 0.417482, "methode": 0.417343, "whittaker": 0.417324, "dcn": 0.417227, "ksz": 0.417123, "cypsa": 0.417087, "dgic": 0.417067, "ufbc": 0.417062, "ins": 0.417047, "crownamerica": 0.41695, "crna": 0.41695, "ncso": 0.416946, "falcon": 0.416907, "penwest": 0.416899, "penw": 0.416899, "sbos": 0.41689, "intermagnetics": 0.416876, "penril": 0.416825, "hicks": 0.416757, "spectradyne": 0.416757, "cullen": 0.416741, "alza": 0.416711, "gmed": 0.416644, "fssl": 0.41664, "mcfarland": 0.416599, "pennwalt": 0.416531, "shoney": 0.416503, "shon": 0.416503, "wrii": 0.416479, "rooter": 0.416401, "stm": 0.416351, "barnett": 0.416265, "elcor": 0.416234, "vermont": 0.416211, "rocker": 0.416191, "snbl": 0.416129, "develcon": 0.416093, "dlcff": 0.416093, "gotaas": 0.416067, "internchange": 0.415999, "isbj": 0.415999, "interchange": 0.415999, "febc": 0.415938, "princeville": 0.415895, "citn": 0.415888, "catena": 0.415765, "dli": 0.415748, "electromedics": 0.415628, "rosenkranz": 0.415607, "foote": 0.415604, "cml": 0.415568, "cmli": 0.415568, "petrie": 0.415535, "ahold": 0.415483, "hachette": 0.415472, "anwi": 0.415378, "timb": 0.415281, "hlm": 0.41527, "ranchmen": 0.415263, "meriden": 0.415226, "csbm": 0.415226, "kapok": 0.415174, "shandwick": 0.415091, "systemone": 0.414931, "bla": 0.414781, "passport": 0.41464, "ppti": 0.41464, "yearago": 0.414602, "brougher": 0.414486, "kleinert": 0.414473, "klrt": 0.414473, "tolland": 0.414463, "tobk": 0.414463, "kurzweil": 0.414457, "deltec": 0.414456, "tai": 0.414395, "wavehill": 0.414258, "woolworths": 0.414233, "sizzler": 0.414222, "sizz": 0.414222, "ames": 0.413948, "forman": 0.413679, "orbanco": 0.413499, "durkin": 0.413485, "comed": 0.413429, "cabk": 0.413411, "gateway": 0.413332, "offi": 0.413256, "vogt": 0.413167, "quarterlies": 0.413164, "volkskas": 0.413116, "gggg": 0.412927, "hartmarx": 0.412877, "vets": 0.412845, "versatile": 0.412835, "helig": 0.412773, "hmy": 0.412773, "clo": 0.412734, "trustcorp": 0.412685, "ttco": 0.412685, "icn": 0.41266, "utilicorp": 0.41264, "ael": 0.412355, "aelna": 0.412355, "kongsberg": 0.412255, "comi": 0.412195, "gambro": 0.412184, "gamb": 0.412184, "milner": 0.412155, "tisch": 0.41212, "butl": 0.412026, "balzac": 0.411958, "vulcan": 0.411853, "mayaguez": 0.41175, "gilliam": 0.411716, "suffield": 0.411637, "mye": 0.411573, "preway": 0.411539, "prew": 0.411539, "foothill": 0.411445, "pagurian": 0.411412, "alfaro": 0.411379, "hometown": 0.411305, "htwn": 0.411305, "commtron": 0.411268, "cmr": 0.411268, "ip": 0.411248, "dixie": 0.411209, "methb": 0.411027, "arbc": 0.410982, "airdrome": 0.410963, "markheath": 0.41092, "outboard": 0.410878, "plum": 0.410862, "safco": 0.410848, "vlvl": 0.410825, "clevite": 0.410803, "bedford": 0.410703, "fdgc": 0.41057, "ekr": 0.410506, "chp": 0.410505, "bak": 0.410451, "yfed": 0.41045, "dibona": 0.410408, "accuray": 0.410367, "caledonian": 0.410358, "saft": 0.41033, "val": 0.41024, "amrc": 0.410215, "soros": 0.410164, "ipco": 0.410159, "simpson": 0.409891, "smps": 0.409891, "smi": 0.409718, "mars": 0.409591, "cdc": 0.409586, "coradian": 0.409577, "wga": 0.409572, "careplus": 0.409546, "robins": 0.409514, "stryker": 0.409501, "codenoll": 0.409491, "codn": 0.409491, "mnh": 0.409419, "tpo": 0.40939, "cvn": 0.409276, "fco": 0.409224, "mcdy": 0.409132, "asarco": 0.408976, "astoria": 0.408965, "guadalco": 0.408925, "diodes": 0.408852, "dio": 0.408852, "wichita": 0.408771, "franklin": 0.408755, "pitt": 0.408569, "bakelite": 0.408557, "zzzz": 0.408556, "zbst": 0.408556, "airmotive": 0.408354, "carolin": 0.408179, "lira": 0.407995, "westwood": 0.407952, "nutone": 0.407913, "avaq": 0.407895, "oilwell": 0.407876, "gillette": 0.407789, "equicor": 0.407738, "isthmus": 0.40773, "gelco": 0.407653, "nzi": 0.407467, "ovest": 0.40745, "brenda": 0.407431, "addison": 0.407431, "gamma": 0.407406, "gama": 0.407406, "quest": 0.40729, "texstyrene": 0.407262, "smni": 0.407262, "intercep": 0.407209, "energas": 0.407187, "alleghney": 0.407009, "trunkline": 0.40695, "bmdc": 0.406902, "dwi": 0.406799, "dwic": 0.406799, "callon": 0.406635, "clnp": 0.406635, "resrouces": 0.406534, "extraordainy": 0.406534, "kaltenbacher": 0.406499, "rapitech": 0.40648, "rpsy": 0.40648, "welbilt": 0.406402, "amtech": 0.40637, "administrators": 0.406178, "bei": 0.405986, "mccormack": 0.405928, "mcrae": 0.405898, "mri": 0.405898, "visual": 0.405893, "baybanks": 0.405756, "bbnk": 0.405756, "gdic": 0.405724, "wilkinson": 0.405691, "analytics": 0.405612, "pbs": 0.405611, "algonquin": 0.405596, "dalt": 0.405593, "reef": 0.405367, "norcros": 0.405316, "hrzb": 0.40531, "cogeco": 0.405273, "otf": 0.405159, "otfe": 0.405159, "telemedia": 0.40513, "numerex": 0.405087, "nmrx": 0.405087, "vining": 0.405022, "utvegsbanki": 0.404948, "kebo": 0.404888, "gordex": 0.404871, "chatwal": 0.404837, "valero": 0.404826, "bastian": 0.404816, "loynes": 0.404776, "marsh": 0.404762, "mclennan": 0.404762, "intercare": 0.404743, "boma": 0.404702, "faulkner": 0.404576, "unquoted": 0.404458, "toromont": 0.404363, "cfbk": 0.404345, "glgvf": 0.40431, "leaseway": 0.404145, "southam": 0.404102, "pmi": 0.404095, "snc": 0.404088, "aegon": 0.40388, "irwn": 0.403763, "pantry": 0.403738, "greenman": 0.403691, "gmn": 0.403691, "hemotec": 0.403618, "hemo": 0.403618, "comdata": 0.403583, "ultramar": 0.40347, "sprh": 0.403462, "mlnvs": 0.40344, "anitec": 0.403435, "antc": 0.403435, "dblb": 0.403427, "firecom": 0.403387, "frcm": 0.403387, "coleco": 0.403371, "shadowfax": 0.403256, "shfxf": 0.403256, "promac": 0.403162, "syntech": 0.403153, "interenational": 0.403153, "syne": 0.403153, "sbn": 0.403086, "todd": 0.403042, "resm": 0.402936, "lanschot": 0.402927, "renta": 0.402905, "ovwv": 0.402765, "ccpt": 0.402735, "shiviyacu": 0.402729, "biosystems": 0.402719, "mab": 0.402692, "therapies": 0.402676, "lux": 0.40262, "ccr": 0.402552, "cal": 0.402514, "damon": 0.402503, "dni": 0.402503, "puritan": 0.402466, "ccl": 0.402401, "ual": 0.40238, "grl": 0.402334, "tektronix": 0.402296, "argosystems": 0.402138, "stars": 0.402, "swhi": 0.401995, "berger": 0.401954, "bacp": 0.401864, "cng": 0.401662, "wormald": 0.4016, "svt": 0.401475, "telecharge": 0.401389, "itil": 0.401389, "scripps": 0.401284, "mcgraw": 0.401097, "goody": 0.401026, "danaher": 0.401023, "ionics": 0.400998, "mixon": 0.400793, "cummins": 0.400726, "medicontrol": 0.400549, "schulman": 0.400518, "shlm": 0.400518, "westlb": 0.400461, "licia": 0.400387, "winn": 0.400345, "seb": 0.400208, "pimary": 0.400203, "gemini": 0.400189, "harmoko": 0.400178, "dutchess": 0.400026, "eed": 0.40001, "harman": 0.399986, "zico": 0.399981, "hadson": 0.399784, "hiii": 0.399783, "mtrc": 0.399752, "sedgwick": 0.399508, "kaiser": 0.399504, "nusource": 0.399461, "griffin": 0.399453, "grif": 0.399453, "syms": 0.399436, "sym": 0.399436, "inludes": 0.399436, "benguet": 0.399432, "chaparral": 0.399373, "tecd": 0.39937, "whls": 0.399302, "grumman": 0.399245, "bhp": 0.399121, "wern": 0.399023, "hlme": 0.398979, "bpi": 0.398958, "armor": 0.39892, "armr": 0.39892, "gvmf": 0.39884, "usp": 0.398828, "iwc": 0.398823, "walbro": 0.398808, "paemen": 0.39866, "macomson": 0.398284, "lamborghini": 0.398237, "cbss": 0.398167, "gldc": 0.398047, "mgm": 0.39796, "cod": 0.397896, "ccbt": 0.397896, "scholl": 0.397858, "carroon": 0.397819, "attrib": 0.397774, "amn": 0.397648, "russ": 0.397532, "togs": 0.397532, "rts": 0.397532, "healthmate": 0.397526, "micropro": 0.397489, "mpro": 0.397489, "gsw": 0.397401, "marley": 0.397394, "heater": 0.397394, "monfort": 0.397341, "audi": 0.397327, "gebrueder": 0.397305, "sulzer": 0.397305, "hawker": 0.397271, "generics": 0.397172, "myra": 0.397138, "lilly": 0.397102, "cmh": 0.397049, "gunnar": 0.396941, "avco": 0.396848, "pw": 0.396491, "hoist": 0.396485, "aho": 0.396485, "hii": 0.396434, "tracomin": 0.396411, "eqty": 0.396408, "numac": 0.396401, "willcox": 0.396391, "tvx": 0.396382, "mcintyre": 0.396359, "ffbk": 0.396264, "usw": 0.396255, "lifi": 0.396204, "chesapeake": 0.396178, "siebel": 0.396034, "qed": 0.395979, "powell": 0.395979, "brae": 0.395859, "flonetics": 0.395799, "heinl": 0.395735, "docugraphix": 0.395652, "docx": 0.395652, "ziering": 0.395626, "endotronics": 0.395588, "loral": 0.395566, "dress": 0.395499, "barn": 0.395499, "dbrn": 0.395499, "joul": 0.395467, "lpai": 0.395466, "mrbl": 0.395456, "hrl": 0.395401, "macluan": 0.395237, "carolian": 0.395209, "dahlberg": 0.3952, "dahl": 0.3952, "medfirst": 0.395195, "lvt": 0.395127, "invn": 0.395113, "btrl": 0.395075, "calprop": 0.395034, "cpp": 0.395034, "condemnation": 0.395, "gte": 0.394959, "novc": 0.394929, "torino": 0.394929, "flaef": 0.394916, "cban": 0.394902, "cncl": 0.394897, "slater": 0.394885, "alitalia": 0.394718, "nrd": 0.394701, "crosse": 0.394506, "coleman": 0.394438, "aarn": 0.394435, "datatrak": 0.394419, "dtrk": 0.394419, "famr": 0.394374, "learjet": 0.394307, "luverne": 0.39418, "furnaces": 0.394066, "varian": 0.394052, "arkla": 0.393977, "sphinx": 0.39395, "bleu": 0.393931, "stvtf": 0.393804, "ryder": 0.393575, "jct": 0.393512, "cpl": 0.393503, "gasekt": 0.393251, "mrgc": 0.393251, "nortek": 0.393245, "mailers": 0.393199, "hechinger": 0.39319, "hech": 0.39319, "precambrian": 0.393061, "vr": 0.393019, "quist": 0.393015, "cineplex": 0.392931, "lnsb": 0.392885, "sbk": 0.392757, "schering": 0.392728, "sobeys": 0.392656, "microdyne": 0.392646, "ademco": 0.392641, "capper": 0.392631, "ltee": 0.392485, "vdo": 0.392485, "strata": 0.392467, "ausimont": 0.392453, "compo": 0.392453, "alfin": 0.392332, "afn": 0.392332, "clausen": 0.392313, "ber": 0.392309, "transamerica": 0.392266, "britoil": 0.392144, "worthington": 0.392103, "wthg": 0.392103, "galileo": 0.392075, "seagate": 0.392051, "sgat": 0.392051, "kloeckner": 0.392041, "ugen": 0.391978, "optrotech": 0.391923, "optkf": 0.391923, "viratek": 0.391902, "valor": 0.391849, "talman": 0.391803, "cobanco": 0.391803, "cbco": 0.391803, "burro": 0.391736, "lennar": 0.391696, "deltaus": 0.391606, "dlta": 0.391606, "solds": 0.391606, "rexnard": 0.391601, "boothe": 0.391591, "essxa": 0.391554, "essex": 0.391553, "mize": 0.391542, "highveld": 0.391462, "borman": 0.391422, "ifsl": 0.391397, "ommeren": 0.391371, "fnni": 0.391308, "mcry": 0.39127, "apex": 0.391242, "automedix": 0.391204, "tabak": 0.391179, "hc": 0.391111, "resales": 0.391106, "dockers": 0.390981, "irri": 0.390819, "carsey": 0.39072, "vaskevitch": 0.390691, "neworld": 0.390636, "campeau": 0.390603, "ion": 0.390547, "comstock": 0.390488, "stevenson": 0.390438, "steuart": 0.390387, "cityquest": 0.390322, "nmic": 0.390235, "pengo": 0.390171, "popsicle": 0.39017, "sinc": 0.39013, "shaer": 0.390115, "rad": 0.390112, "bankshares": 0.389982, "peps": 0.389886, "allison": 0.389882, "ich": 0.389869, "cpf": 0.389836, "datel": 0.38979, "tagaris": 0.38979, "neuman": 0.389775, "hrzn": 0.389748, "hug": 0.389721, "saatchi": 0.389673, "accruable": 0.389575, "wag": 0.389572, "raytheon": 0.389566, "iep": 0.389516, "ogelbay": 0.389516, "fbo": 0.389484, "cajamarquilla": 0.389431, "cipec": 0.3894, "goldsil": 0.389307, "sulpetro": 0.389263, "jayark": 0.389192, "jaya": 0.389192, "cetec": 0.389168, "cec": 0.389168, "microfilm": 0.389162, "americanture": 0.389142, "maynard": 0.389124, "moil": 0.389124, "mgen": 0.389025, "laidlaw": 0.389011, "znat": 0.388988, "curtice": 0.38886, "hwkn": 0.388829, "dubin": 0.388782, "unqualified": 0.38878, "uvc": 0.388653, "lyphomed": 0.388652, "lmed": 0.388652, "synthetech": 0.3886, "hovercraft": 0.388544, "inspiration": 0.388491, "wiley": 0.388466, "willb": 0.388466, "pios": 0.388324, "zim": 0.3883, "ypf": 0.388294, "newell": 0.388243, "nwl": 0.388243, "cognitronics": 0.388138, "cgn": 0.388138, "intitial": 0.388041, "mftn": 0.387976, "uncf": 0.387958, "fwch": 0.387924, "pharmacontrol": 0.387889, "whim": 0.387753, "selecterm": 0.387639, "sltm": 0.387639, "scie": 0.387634, "peo": 0.387564, "foodarama": 0.387547, "fsm": 0.387547, "reliacare": 0.387355, "sirrine": 0.387231, "halbert": 0.387224, "angelica": 0.387185, "wqith": 0.387185, "deng": 0.387078, "skylark": 0.386934, "sklk": 0.386934, "wrather": 0.386755, "millen": 0.386725, "nwnl": 0.386586, "pubco": 0.38649, "propoerties": 0.386397, "bapyz": 0.386397, "hsld": 0.386373, "shu": 0.386314, "bridgestone": 0.386112, "brit": 0.386112, "wcs": 0.386075, "cardis": 0.385893, "mets": 0.385885, "pvy": 0.38584, "btcu": 0.385762, "acme": 0.385761, "cwld": 0.385724, "dso": 0.385715, "woodville": 0.385677, "architects": 0.385629, "orion": 0.385473, "mtcc": 0.385439, "bowater": 0.385394, "chemclear": 0.385349, "voicemail": 0.385317, "duvel": 0.385056, "mccall": 0.385035, "chavin": 0.384964, "eskey": 0.384914, "keystone": 0.384911, "questech": 0.384907, "qtec": 0.384907, "seafoods": 0.3849, "mott": 0.384885, "msm": 0.384885, "mnln": 0.384885, "bryant": 0.384711, "aig": 0.384688, "fondiaria": 0.384681, "australs": 0.384507, "taft": 0.384501, "dri": 0.38427, "rah": 0.384204, "mlx": 0.384192, "chariot": 0.384084, "cgr": 0.384084, "interwest": 0.384045, "repap": 0.38399, "xidex": 0.383986, "xidx": 0.383986, "skii": 0.383979, "maxcom": 0.383951, "aaron": 0.383946, "coachmen": 0.383774, "coa": 0.383774, "brunswig": 0.38375, "bbca": 0.38375, "gevn": 0.383695, "wcas": 0.383609, "caterpillar": 0.383507, "ici": 0.383502, "telequest": 0.383471, "telq": 0.383471, "wnt": 0.383458, "pentland": 0.383251, "norgold": 0.383228, "nbh": 0.383228, "nipsco": 0.383175, "pciac": 0.383171, "hollis": 0.383169, "genstar": 0.383081, "info": 0.383077, "novar": 0.383031, "mdc": 0.382818, "nip": 0.382778, "ajinomoto": 0.382654, "idb": 0.38264, "wyona": 0.382627, "oshap": 0.382548, "oshuf": 0.382548, "savoy": 0.382521, "savo": 0.382521, "abp": 0.382512, "bloomington": 0.382455, "rcp": 0.382369, "tcel": 0.382355, "asbs": 0.382215, "res": 0.382104, "spilf": 0.381843, "lowrance": 0.381734, "lomas": 0.381639, "peep": 0.381633, "lpep": 0.381633, "slt": 0.381606, "robn": 0.381599, "lotus": 0.381579, "triton": 0.381572, "iroquois": 0.381548, "parsow": 0.38153, "harmon": 0.381437, "fisher": 0.381234, "csw": 0.381106, "ecoa": 0.381074, "iclb": 0.381043, "stanline": 0.381025, "stan": 0.381025, "coopervision": 0.380972, "admac": 0.380947, "jpac": 0.380947, "qt": 0.380947, "aequitron": 0.38088, "wimpey": 0.380877, "uam": 0.380861, "intracoastal": 0.380793, "gac": 0.380778, "gactz": 0.380778, "microsize": 0.380771, "msiz": 0.380771, "mindscape": 0.38071, "cavalier": 0.380636, "cavh": 0.380636, "chemlawn": 0.380622, "sandsport": 0.380612, "virateck": 0.38058, "susquehanna": 0.380375, "sqn": 0.380375, "buitoni": 0.380372, "easts": 0.380361, "valt": 0.380346, "wae": 0.38011, "homemade": 0.380108, "bjic": 0.380108, "mgre": 0.380062, "centel": 0.380052, "vista": 0.379996, "oshman": 0.379969, "prebble": 0.379964, "wfsl": 0.37992, "unwrought": 0.379901, "adtec": 0.379898, "bat": 0.379885, "mcclain": 0.379853, "ces": 0.379849, "zondervan": 0.379828, "mazda": 0.379787, "mazt": 0.379787, "credo": 0.379554, "cred": 0.379554, "jsbk": 0.379497, "virco": 0.379458, "vir": 0.379458, "stowed": 0.379445, "munford": 0.379403, "esex": 0.37937, "newhall": 0.379235, "scms": 0.379188, "ldbrinkman": 0.379179, "smoky": 0.379172, "identics": 0.379142, "bevis": 0.379141, "ustc": 0.379026, "seal": 0.378904, "lastest": 0.378862, "raytech": 0.37883, "wtr": 0.378802, "fiia": 0.378676, "teleconcepts": 0.378529, "tcc": 0.378529, "pulitzer": 0.378509, "pltzc": 0.378509, "sisters": 0.378421, "denko": 0.378419, "contrans": 0.378293, "css": 0.378293, "grass": 0.378278, "equine": 0.378278, "scitex": 0.378244, "scixf": 0.378244, "permian": 0.378226, "sylvan": 0.378155, "slvn": 0.378155, "lacr": 0.378063, "conrac": 0.377734, "transporter": 0.377685, "lowe": 0.377659, "sayam": 0.377492, "klm": 0.377443, "sasles": 0.377434, "bne": 0.377358, "qpon": 0.377349, "baltek": 0.377332, "espc": 0.377282, "loma": 0.377206, "ssmc": 0.377188, "esca": 0.377145, "nzfp": 0.377105, "eac": 0.377052, "arthurs": 0.377042, "mentor": 0.377013, "lexington": 0.377013, "avy": 0.376918, "acpt": 0.376864, "hospitality": 0.376702, "firstcorp": 0.376684, "dyncorp": 0.376644, "kb": 0.376575, "thorn": 0.376551, "audiovisual": 0.376551, "buckhorn": 0.376534, "solv": 0.376511, "wsci": 0.37651, "nvid": 0.376459, "fluor": 0.376456, "wrightson": 0.37642, "bregman": 0.376408, "dresser": 0.376236, "decorator": 0.375958, "dii": 0.375958, "meridian": 0.375948, "pri": 0.375924, "chjange": 0.375889, "gaions": 0.375889, "wtrk": 0.375821, "cra": 0.375819, "caremark": 0.375759, "conger": 0.375718, "rb": 0.37571, "cws": 0.375701, "gates": 0.375689, "pueblo": 0.375646, "pii": 0.375646, "cycare": 0.375646, "wpp": 0.375639, "southold": 0.375633, "sdsb": 0.375633, "mayf": 0.375499, "rpi": 0.375477, "sonex": 0.375457, "bolt": 0.375379, "texasgulf": 0.375273, "mdi": 0.375067, "pitman": 0.375054, "selkirk": 0.375002, "wojnilower": 0.37493, "christophe": 0.374882, "houtte": 0.374882, "gulfex": 0.374796, "oracle": 0.374771, "elisra": 0.37473, "rexnord": 0.374711, "aristech": 0.374628, "burry": 0.374518, "keycorp": 0.374487, "gatx": 0.374451, "pns": 0.37444, "gfi": 0.37443, "bilzerian": 0.374309, "shv": 0.374261, "vieille": 0.374207, "montagne": 0.374207, "cny": 0.374188, "louart": 0.374135, "llc": 0.374107, "vendo": 0.374097, "ven": 0.374097, "aagiy": 0.374017, "gkn": 0.373978, "barker": 0.373919, "isuzu": 0.37379, "datagraphix": 0.373781, "hpsc": 0.373704, "drummonds": 0.373663, "bkrs": 0.373644, "pentron": 0.373616, "rorer": 0.373581, "gfs": 0.373537, "vsd": 0.373537, "itel": 0.373499, "dataproducts": 0.373447, "gleason": 0.373426, "mdt": 0.373356, "adler": 0.373318, "mco": 0.373274, "bartlett": 0.373146, "bionomic": 0.373022, "ashton": 0.372933, "cb": 0.372911, "txi": 0.372777, "ceradyne": 0.372739, "crdn": 0.372739, "banc": 0.372674, "biomet": 0.372674, "lnc": 0.37264, "regal": 0.372611, "htp": 0.37259, "resoureces": 0.372552, "eldb": 0.37247, "uspci": 0.372367, "abington": 0.372291, "abbk": 0.372291, "ownserhip": 0.372291, "baii": 0.372279, "denpac": 0.372276, "dnpc": 0.372276, "hooper": 0.372263, "sherlock": 0.372263, "hoop": 0.372263, "rwevs": 0.372263, "rite": 0.372237, "takeuchi": 0.372188, "ocelot": 0.372178, "eqt": 0.372139, "barringer": 0.372133, "barr": 0.372133, "obod": 0.372047, "jbil": 0.372032, "leclerc": 0.372008, "altus": 0.371985, "gst": 0.371963, "maxtec": 0.371954, "ski": 0.371923, "lasersonics": 0.371795, "harg": 0.371576, "beeba": 0.371553, "amtron": 0.371496, "vernells": 0.371493, "spip": 0.371447, "ipe": 0.371429, "cstk": 0.371418, "norris": 0.371326, "vfsc": 0.371236, "jewelry": 0.371124, "debbie": 0.371054, "trustco": 0.371051, "trecker": 0.371048, "tae": 0.371004, "pope": 0.370974, "scs": 0.370945, "scom": 0.370945, "wmc": 0.370845, "welbac": 0.370758, "sbs": 0.37064, "intermedics": 0.370593, "csof": 0.370554, "jewelers": 0.370472, "pmbk": 0.3704, "sdc": 0.370385, "sisb": 0.370312, "filtrona": 0.37031, "afil": 0.37031, "amoskeag": 0.370304, "uhco": 0.370204, "johnstown": 0.370168, "woodstock": 0.370132, "fexp": 0.370124, "cpc": 0.370123, "mame": 0.370111, "navistar": 0.369885, "mbc": 0.369871, "plt": 0.369855, "chelsea": 0.369728, "inl": 0.36965, "carling": 0.369607, "wmt": 0.369497, "mmal": 0.369448, "greenock": 0.369419, "clri": 0.369368, "vornado": 0.369322, "reit": 0.369306, "ub": 0.369283, "natt": 0.369258, "maxxam": 0.369255, "magellan": 0.36906, "dlt": 0.369009, "eclipse": 0.368881, "desjardins": 0.368808, "waxman": 0.368736, "waxm": 0.368736, "afc": 0.368717, "retirment": 0.368717, "tomaso": 0.368705, "dtom": 0.368705, "infinite": 0.368689, "kleen": 0.368665, "fso": 0.368647, "amswa": 0.368631, "alusuisse": 0.36856, "syracuse": 0.368547, "templeton": 0.368478, "ameriana": 0.368426, "asbi": 0.368426, "primerica": 0.368407, "mas": 0.368252, "mki": 0.368053, "brandman": 0.368028, "carryfoward": 0.368017, "agl": 0.367996, "tandy": 0.367947, "zeeuw": 0.36793, "acton": 0.367916, "neti": 0.367806, "shear": 0.367801, "hsi": 0.367801, "baruch": 0.367785, "bfo": 0.367785, "bally": 0.367759, "pst": 0.367727, "securitiesd": 0.367668, "gaons": 0.367668, "dune": 0.367624, "apd": 0.367437, "bel": 0.36743, "fothergill": 0.36743, "transducer": 0.367427, "jiji": 0.36734, "stritch": 0.367193, "meese": 0.367156, "avana": 0.36711, "convest": 0.367097, "cep": 0.367097, "brockton": 0.367078, "pbkb": 0.367078, "gainsco": 0.367078, "eaton": 0.367072, "germaine": 0.366869, "monteil": 0.366869, "noblee": 0.36683, "galley": 0.366713, "seag": 0.366713, "seizer": 0.366708, "albion": 0.366684, "digiorgio": 0.366655, "mccrann": 0.366631, "geonex": 0.366569, "omnilab": 0.366473, "gould": 0.366436, "rkwd": 0.366296, "gendex": 0.366278, "xray": 0.366278, "hodel": 0.366271, "federated": 0.366156, "interiors": 0.366082, "transwestern": 0.366029, "vms": 0.366028, "braniff": 0.365955, "bair": 0.365955, "inspections": 0.36594, "orley": 0.365857, "gvmi": 0.365818, "bev": 0.365752, "ceramics": 0.36575, "totalizator": 0.36573, "reebok": 0.365724, "sosa": 0.365679, "bci": 0.365587, "potash": 0.365536, "conc": 0.365522, "seidman": 0.365496, "viacom": 0.365464, "agricole": 0.365385, "kpk": 0.365378, "qintex": 0.365149, "vallen": 0.365147, "valn": 0.365147, "rapeseeed": 0.365131, "chemetron": 0.365093, "clancy": 0.365069, "agrimont": 0.365046, "loving": 0.36499, "memories": 0.364979, "wid": 0.364953, "gsx": 0.3648, "pak": 0.364782, "mccrae": 0.364714, "nissan": 0.364709, "colonial": 0.36467, "cyanamid": 0.364656, "minneosta": 0.364654, "dbms": 0.364575, "nawara": 0.364575, "quixote": 0.364512, "jhsn": 0.364496, "mellon": 0.364395, "rowley": 0.364363, "scher": 0.364363, "fendt": 0.364339, "nzfe": 0.364336, "greenery": 0.36433, "rlifa": 0.364308, "calcutta": 0.364291, "conseco": 0.364198, "sundor": 0.364168, "macedon": 0.364162, "pfaudler": 0.36414, "glfs": 0.364137, "reichold": 0.364064, "cpsa": 0.363909, "kly": 0.3639, "nim": 0.363888, "calstar": 0.363882, "csar": 0.363882, "eastek": 0.363853, "estk": 0.363853, "hnt": 0.363818, "papyrus": 0.363723, "hapag": 0.36372, "phbk": 0.363521, "mnr": 0.363506, "amax": 0.363405, "peop": 0.363239, "vanderbilt": 0.363161, "gpu": 0.363005, "bbls": 0.362951, "tcs": 0.362937, "levon": 0.362863, "clabir": 0.362703, "conagra": 0.362659, "diana": 0.362624, "cobk": 0.362595, "slough": 0.362549, "macmillan": 0.362514, "corroon": 0.362356, "asta": 0.362352, "madeira": 0.362291, "npr": 0.362285, "armtek": 0.362253, "trat": 0.362186, "hhot": 0.362155, "telecrafter": 0.362059, "aq": 0.361942, "bayer": 0.361937, "tfit": 0.361792, "comp": 0.361722, "cucd": 0.361722, "shas": 0.361707, "transcontinental": 0.361699, "pae": 0.361697, "fele": 0.361673, "refloated": 0.361616, "benh": 0.361592, "munsingwear": 0.361526, "mun": 0.361526, "crni": 0.361469, "rochester": 0.361449, "nfsf": 0.361408, "indqa": 0.361376, "greyhound": 0.361374, "yeo": 0.361359, "ldn": 0.361292, "hssi": 0.361266, "vmlpz": 0.361211, "banctexas": 0.361166, "scti": 0.361037, "fabk": 0.361013, "siebe": 0.360967, "blud": 0.360958, "faaa": 0.360923, "bogart": 0.360898, "endevco": 0.360868, "ncnb": 0.360825, "cruists": 0.360796, "penta": 0.3607, "bfs": 0.360672, "kraft": 0.36058, "usre": 0.360493, "trotter": 0.36047, "avian": 0.36046, "tps": 0.360441, "bathurst": 0.360421, "stata": 0.360393, "fiama": 0.360316, "bfi": 0.360183, "autoparts": 0.360122, "kkk": 0.360122, "cri": 0.360119, "ori": 0.359914, "cirex": 0.359848, "butler": 0.359846, "preston": 0.359822, "df": 0.359822, "php": 0.359799, "phph": 0.359799, "spelling": 0.359788, "sp": 0.359788, "mse": 0.359724, "thr": 0.35967, "timberline": 0.359608, "hndh": 0.359567, "xyvision": 0.359306, "xyvi": 0.359306, "biologicals": 0.359292, "cinema": 0.359277, "astec": 0.359228, "aste": 0.359228, "grph": 0.359215, "kidston": 0.359035, "swk": 0.359013, "nerco": 0.358987, "cyclops": 0.358945, "tmpl": 0.358881, "narusawa": 0.358864, "instrumentarium": 0.358804, "nokia": 0.358804, "heinold": 0.358706, "champion": 0.3587, "stcm": 0.358628, "encor": 0.358599, "dvh": 0.358447, "cornucopia": 0.358433, "grease": 0.358336, "spectran": 0.358273, "sptr": 0.358273, "bancroft": 0.358131, "dunlop": 0.358128, "comterm": 0.358075, "gmp": 0.358023, "esc": 0.357926, "recoton": 0.35789, "rcot": 0.35789, "emco": 0.357881, "bronstein": 0.357866, "pesch": 0.357752, "syeduzzaman": 0.35774, "mayfair": 0.357728, "clearwater": 0.357548, "umbiz": 0.357314, "lomak": 0.357222, "minneaplois": 0.357203, "glaxo": 0.357195, "echo": 0.357172, "hoechst": 0.357129, "xerox": 0.35709, "rsi": 0.357016, "kinross": 0.356983, "forbes": 0.35683, "beecham": 0.356767, "cmca": 0.356662, "chamorro": 0.356658, "ameritrust": 0.356606, "pecn": 0.356591, "magnetics": 0.356565, "tmi": 0.356462, "edison": 0.356427, "siaf": 0.356358, "cosmo": 0.356181, "whitehall": 0.356154, "ltx": 0.356014, "ltxx": 0.356014, "wolverine": 0.355867, "browning": 0.355751, "loc": 0.355745, "sunlaw": 0.355739, "quintales": 0.355677, "linotype": 0.355627, "mart": 0.355533, "metro": 0.355432, "telkon": 0.355323, "quaker": 0.355303, "hybrid": 0.355294, "mulford": 0.35522, "towle": 0.355216, "intercontinental": 0.355207, "insituform": 0.355149, "jacoby": 0.355017, "conract": 0.354987, "wsl": 0.354971, "resultes": 0.354953, "biochem": 0.354887, "jefferson": 0.354833, "revco": 0.354719, "gerasimov": 0.354702, "austn": 0.354609, "arrays": 0.35459, "eastpark": 0.354381, "ert": 0.354381, "stuttgart": 0.35434, "misima": 0.354222, "ccmc": 0.354217, "heusen": 0.354173, "pvh": 0.354173, "macneal": 0.35411, "schwendler": 0.35411, "mns": 0.35411, "uni": 0.354011, "discontinuedoperations": 0.354001, "stafford": 0.353985, "recrod": 0.353933, "tempo": 0.353799, "blocker": 0.353744, "blk": 0.353744, "rsgi": 0.353613, "gruop": 0.353613, "bnbga": 0.353581, "scoa": 0.353576, "ncfs": 0.353392, "radif": 0.353327, "stauffer": 0.353275, "rhm": 0.353235, "vismara": 0.353227, "flti": 0.353213, "fobba": 0.353209, "mww": 0.353177, "hohenwarth": 0.353086, "pasar": 0.353059, "eddie": 0.352946, "spectra": 0.352906, "physics": 0.352906, "oii": 0.352896, "caputo": 0.35283, "kaufman": 0.352683, "petroli": 0.352579, "biltmore": 0.352554, "outokumpu": 0.352497, "triis": 0.352404, "seam": 0.352305, "kmsi": 0.35226, "caryforwards": 0.35226, "vernors": 0.352253, "telc": 0.352249, "temp": 0.352174, "abitibi": 0.352148, "aib": 0.352148, "adx": 0.352114, "iae": 0.35211, "kings": 0.352078, "kren": 0.352078, "searle": 0.352063, "sierrita": 0.352049, "mannesmann": 0.352018, "bio": 0.352012, "mrc": 0.351981, "dna": 0.351935, "mmct": 0.351935, "datagraph": 0.35184, "peoples": 0.351801, "pnre": 0.351695, "cla": 0.351668, "ic": 0.351619, "rockwood": 0.35156, "corning": 0.351533, "magic": 0.351463, "xcel": 0.351307, "luby": 0.351273, "lub": 0.351273, "fountain": 0.351264, "meinert": 0.351244, "keane": 0.35115, "kean": 0.35115, "sroka": 0.351135, "lincoln": 0.351133, "eia": 0.35113, "breakwater": 0.351054, "cor": 0.350996, "unfr": 0.350813, "knmc": 0.350639, "fnf": 0.350614, "goldome": 0.350581, "rsic": 0.350564, "paton": 0.350522, "lndh": 0.350519, "alcc": 0.350412, "enterra": 0.350402, "kinder": 0.350331, "inspeech": 0.350253, "norma": 0.350253, "armel": 0.350198, "mrea": 0.350142, "arbed": 0.350141, "impairment": 0.350106, "quote": 0.349993, "esio": 0.349978, "electron": 0.349911, "southmark": 0.349828, "sime": 0.349827, "darby": 0.349827, "hata": 0.34973, "mrcs": 0.349615, "babcock": 0.349611, "mntl": 0.349569, "quartger": 0.349543, "payless": 0.349537, "helen": 0.349521, "hele": 0.349521, "grinding": 0.349386, "spcm": 0.349366, "accountemps": 0.349302, "abt": 0.349298, "akzo": 0.349245, "ptrk": 0.349236, "stas": 0.349177, "quartter": 0.349177, "pwm": 0.349168, "parital": 0.349168, "crushers": 0.349163, "siddeley": 0.349124, "hov": 0.349086, "malta": 0.349063, "mcadoo": 0.348953, "turco": 0.348922, "charmglow": 0.348922, "ame": 0.348867, "zayre": 0.348866, "stipulation": 0.348798, "classics": 0.34879, "myriad": 0.348769, "soyabean": 0.348714, "bmd": 0.348688, "heidrun": 0.348674, "berisford": 0.348632, "acmb": 0.348615, "ciots": 0.348478, "donner": 0.348461, "quantech": 0.348431, "tifton": 0.348419, "insects": 0.348331, "cobre": 0.348292, "reph": 0.348258, "plainwell": 0.348237, "everest": 0.348148, "proteins": 0.347917, "sax": 0.347883, "stus": 0.347622, "ranchman": 0.347478, "willis": 0.347335, "lap": 0.347333, "kollmorgen": 0.347243, "kol": 0.347243, "ssss": 0.347168, "thermo": 0.347165, "mints": 0.347155, "csc": 0.347098, "ashman": 0.347077, "wobs": 0.347076, "wallcoverings": 0.346983, "wallco": 0.346983, "csol": 0.346923, "permaline": 0.346902, "fox": 0.346897, "agronomics": 0.346868, "forstmann": 0.346829, "novebmer": 0.346813, "aec": 0.346803, "chit": 0.346795, "plp": 0.346751, "tvt": 0.346653, "wmsi": 0.346599, "beasley": 0.346599, "msai": 0.346516, "porsche": 0.346488, "wausau": 0.346488, "wsau": 0.346488, "scot": 0.34647, "locker": 0.346411, "algi": 0.346411, "alls": 0.346361, "shirmax": 0.346355, "shx": 0.346355, "wireline": 0.346332, "stdl": 0.346277, "frsl": 0.34617, "troon": 0.346154, "schulmann": 0.3461, "strathcona": 0.346017, "newpark": 0.345977, "wti": 0.345967, "elmd": 0.345922, "mays": 0.345915, "celt": 0.345886, "polysar": 0.345852, "raab": 0.345796, "karcher": 0.345796, "opoer": 0.345709, "padding": 0.345708, "novacor": 0.345654, "northgate": 0.345643, "psm": 0.345609, "convergent": 0.345514, "barrick": 0.345465, "caesars": 0.34536, "macandrews": 0.34534, "microsystems": 0.345324, "woolworth": 0.345273, "pfina": 0.345267, "weirton": 0.345263, "widdrington": 0.345231, "fc": 0.345214, "pancanadian": 0.345153, "fn": 0.345066, "trusses": 0.344975, "ffed": 0.344972, "highland": 0.34493, "sturm": 0.3449, "ruger": 0.3449, "rockwell": 0.344841, "danworth": 0.344754, "kio": 0.344726, "agnc": 0.344719, "stb": 0.344666, "lindberg": 0.344561, "lind": 0.344561, "aritech": 0.34456, "arit": 0.34456, "adt": 0.34456, "cph": 0.344504, "usbc": 0.34441, "kaines": 0.344401, "abz": 0.344334, "gsa": 0.344298, "intla": 0.344296, "ihs": 0.344281, "raycomm": 0.34427, "vanadium": 0.344269, "idel": 0.344217, "ffbn": 0.344147, "breslube": 0.34403, "afcx": 0.344015, "amvestors": 0.343978, "bbf": 0.343956, "afp": 0.343925, "murphy": 0.3439, "rac": 0.34387, "usf": 0.343835, "mrbk": 0.343816, "natned": 0.343747, "marble": 0.343738, "alloytek": 0.343609, "lennox": 0.343515, "westco": 0.343412, "oaks": 0.343312, "belvedere": 0.343266, "blv": 0.343266, "baskets": 0.343176, "adp": 0.343156, "elkhorn": 0.343139, "jn": 0.342942, "nbio": 0.342889, "reoprted": 0.342824, "aancor": 0.342821, "sjr": 0.34272, "extraordainry": 0.34272, "hancock": 0.342714, "godfrey": 0.342661, "geni": 0.342582, "pkd": 0.342554, "pps": 0.342506, "ppc": 0.342498, "nicotine": 0.342485, "bkne": 0.342447, "lpl": 0.342355, "homestake": 0.342296, "mtml": 0.342283, "pman": 0.342241, "argyll": 0.342138, "amcast": 0.342131, "seamless": 0.342117, "clothier": 0.342069, "strw": 0.342069, "camco": 0.342059, "hmsb": 0.342043, "fi": 0.341883, "amcor": 0.341876, "ransburg": 0.341876, "rbg": 0.341876, "rugby": 0.341781, "mbls": 0.341707, "emcor": 0.341663, "emcore": 0.341663, "hallwood": 0.341657, "hwg": 0.341657, "alx": 0.341594, "oakridge": 0.341585, "neoax": 0.341507, "cheyenne": 0.341429, "catches": 0.341232, "gdw": 0.341148, "fhlb": 0.341148, "deapartment": 0.341116, "srv": 0.341078, "glynwed": 0.341037, "forrest": 0.341007, "centronics": 0.340885, "bejam": 0.34077, "bjam": 0.34077, "famb": 0.340769, "hmo": 0.34074, "regency": 0.340697, "pop": 0.3406, "wilton": 0.34055, "wltn": 0.34055, "cemetery": 0.340459, "gli": 0.340423, "dog": 0.340423, "halcyon": 0.340398, "govt": 0.340369, "rplo": 0.340341, "qth": 0.340341, "approximating": 0.340341, "howe": 0.340337, "motech": 0.340263, "esquire": 0.340196, "ee": 0.340196, "cbc": 0.340068, "ambrit": 0.340048, "ictm": 0.339993, "gv": 0.339955, "beranek": 0.339927, "bbn": 0.339927, "southlife": 0.339898, "slhc": 0.339898, "sji": 0.339838, "stewart": 0.339806, "ace": 0.339787, "nonutility": 0.339778, "hbo": 0.339752, "algoma": 0.33974, "aircal": 0.339665, "hmx": 0.339617, "unih": 0.339597, "krelitz": 0.339573, "krlz": 0.339573, "bgenf": 0.339532, "gmtif": 0.339406, "emulator": 0.339406, "cbot": 0.339387, "cons": 0.339357, "stcok": 0.33934, "lieberman": 0.339257, "browing": 0.339253, "rambaud": 0.339193, "marcove": 0.33915, "quarto": 0.339133, "valu": 0.339074, "hde": 0.339074, "hinrichs": 0.339074, "plenum": 0.339049, "plen": 0.339049, "ctsd": 0.339028, "ahmanson": 0.33897, "ahm": 0.33897, "verity": 0.338928, "hss": 0.338899, "relaunch": 0.338789, "onc": 0.338784, "sigr": 0.338784, "biod": 0.33878, "gabelli": 0.338743, "creditwatch": 0.338703, "rigolleau": 0.3387, "tnc": 0.338697, "gq": 0.338682, "cis": 0.338673, "blind": 0.338635, "rost": 0.338575, "benetton": 0.338573, "cormier": 0.338568, "peres": 0.338421, "basix": 0.338233, "lutterbach": 0.33823, "scholastic": 0.338153, "schl": 0.338153, "regan": 0.338043, "honeywell": 0.338027, "nrm": 0.337996, "alberston": 0.337989, "mccl": 0.337973, "livingwell": 0.337971, "cadnetix": 0.337969, "cadx": 0.337969, "ntrs": 0.337937, "minntech": 0.337929, "photonics": 0.337894, "salek": 0.337802, "lou": 0.337801, "southtrust": 0.337675, "volusia": 0.337675, "guinn": 0.337632, "krezmar": 0.337566, "hunter": 0.337558, "himg": 0.337459, "vlans": 0.337418, "tmg": 0.337384, "student": 0.337341, "hartford": 0.337323, "reut": 0.337312, "carryback": 0.337312, "spindle": 0.337312, "abbey": 0.337296, "monier": 0.33724, "strenger": 0.337197, "reser": 0.337162, "sorg": 0.337153, "margaux": 0.337019, "margx": 0.337019, "allegheny": 0.336971, "brooklyn": 0.336971, "mechanically": 0.336924, "gencorp": 0.336913, "farren": 0.336862, "hiap": 0.336802, "baht": 0.336692, "burma": 0.336656, "pinnacle": 0.336601, "gmc": 0.336512, "terrano": 0.336483, "trno": 0.336483, "mmblf": 0.336443, "galaxy": 0.336432, "plaid": 0.336334, "pantries": 0.336334, "svu": 0.336205, "rtz": 0.336115, "stn": 0.336091, "fibronics": 0.336067, "fbrx": 0.336067, "spartacus": 0.336067, "febaruary": 0.336067, "datacopy": 0.335953, "dcpy": 0.335953, "extraordinarycredits": 0.335953, "lace": 0.33594, "solr": 0.335904, "sytem": 0.335855, "yemen": 0.335741, "thyssen": 0.335577, "tlm": 0.335567, "dlog": 0.335528, "ivaco": 0.335328, "qtrly": 0.335184, "waldbaum": 0.335163, "shopwell": 0.335163, "republicbank": 0.335155, "condere": 0.335144, "starrett": 0.335133, "sho": 0.335133, "bost": 0.335009, "alpine": 0.335005, "pclb": 0.334877, "vernell": 0.334822, "fermenta": 0.334657, "trimac": 0.33463, "wtc": 0.334595, "insua": 0.334512, "krestmark": 0.334504, "nylex": 0.334493, "bwa": 0.334493, "spi": 0.334455, "krung": 0.334376, "eln": 0.334372, "alcan": 0.334309, "lighting": 0.334279, "ventana": 0.334168, "cellulosa": 0.334167, "scab": 0.334167, "cfix": 0.334149, "habibie": 0.334108, "tonen": 0.334104, "weintraub": 0.334034, "goodyear": 0.333945, "envirosystems": 0.333909, "novl": 0.333782, "fortune": 0.333767, "cthl": 0.33376, "europeiska": 0.33374, "jiffy": 0.333694, "mangood": 0.333634, "mpp": 0.333511, "farwest": 0.333506, "ffws": 0.333506, "weritedown": 0.333448, "ridder": 0.333424, "chinkuli": 0.333304, "marketech": 0.333301, "mahi": 0.333293, "perkins": 0.333214, "ultrasystems": 0.333213, "uls": 0.333213, "tdgl": 0.333167, "uncomfortably": 0.33316, "coeur": 0.333144, "alene": 0.333144, "cour": 0.333144, "mhi": 0.333143, "harlow": 0.333087, "impaired": 0.333029, "buehler": 0.332973, "bulr": 0.332973, "penney": 0.332931, "sigma": 0.332909, "gotlf": 0.332908, "mcrp": 0.332808, "qtow": 0.332795, "wg": 0.332671, "pgai": 0.332656, "tosco": 0.332496, "enjoins": 0.332421, "tre": 0.332385, "utp": 0.332356, "dco": 0.332328, "emcf": 0.332172, "mclean": 0.332091, "ibio": 0.33207, "mmcs": 0.33205, "boc": 0.332031, "aus": 0.332015, "din": 0.331988, "arden": 0.331919, "scurry": 0.33189, "kai": 0.33187, "henkel": 0.331619, "bwb": 0.331609, "kaneb": 0.331584, "zoran": 0.331475, "cronus": 0.331435, "qtrs": 0.331366, "creations": 0.331347, "polyphenylene": 0.331189, "rentals": 0.331165, "ggg": 0.331094, "hf": 0.331055, "servicemaster": 0.331054, "alcad": 0.331052, "giorgio": 0.331039, "mavr": 0.331017, "hearst": 0.331014, "chronicle": 0.331014, "linz": 0.330976, "merx": 0.330976, "eurostat": 0.330878, "anz": 0.330834, "malting": 0.330821, "hallamore": 0.330792, "corby": 0.330792, "notel": 0.330785, "bishop": 0.330783, "ndsn": 0.330782, "laurentian": 0.330748, "pontiacs": 0.330709, "shel": 0.330672, "sna": 0.330557, "anzola": 0.33047, "leucadia": 0.330443, "viceroy": 0.330393, "elecronics": 0.330387, "sdtock": 0.330387, "boliden": 0.330312, "byp": 0.330302, "rtn": 0.330213, "niedermeyer": 0.330046, "acp": 0.330028, "kubota": 0.329984, "kub": 0.329984, "rdc": 0.329977, "dental": 0.329787, "lumonics": 0.329781, "essilor": 0.329644, "essi": 0.329644, "eis": 0.329567, "outdoor": 0.329555, "spear": 0.329545, "musicland": 0.329543, "perkin": 0.329496, "atomika": 0.329496, "mcgill": 0.329319, "insee": 0.329285, "debartolo": 0.329234, "controllers": 0.329167, "istat": 0.329159, "ryzhkov": 0.329099, "gartner": 0.32898, "heller": 0.328925, "headline": 0.328833, "parf": 0.32872, "exley": 0.328629, "reuss": 0.328609, "dpac": 0.328517, "poloron": 0.328512, "iomega": 0.328512, "malpractice": 0.328502, "blasius": 0.328444, "magna": 0.328324, "baxter": 0.328217, "vestar": 0.32821, "oper": 0.328177, "harrowsmith": 0.32817, "vfed": 0.328113, "smsc": 0.328102, "oecf": 0.328027, "ia": 0.327945, "wii": 0.327936, "mcit": 0.327914, "photo": 0.327875, "flo": 0.327776, "hfet": 0.327759, "somc": 0.327759, "ffb": 0.327723, "murgold": 0.327635, "bbrc": 0.327533, "moorhead": 0.327533, "srl": 0.32753, "kcbt": 0.327496, "royale": 0.327447, "belge": 0.327447, "gnb": 0.327444, "repal": 0.327282, "smin": 0.327273, "danville": 0.327258, "unocal": 0.327198, "optics": 0.327161, "burnup": 0.327151, "bsim": 0.327151, "nexl": 0.327148, "etsu": 0.327121, "galveston": 0.327086, "silas": 0.327075, "tiger": 0.327052, "heldor": 0.32697, "hldr": 0.32697, "beall": 0.326891, "calabria": 0.326877, "landa": 0.326797, "atlas": 0.326767, "pta": 0.326679, "toshin": 0.326675, "azuma": 0.326675, "mercury": 0.326628, "aero": 0.32654, "rogers": 0.326517, "ln": 0.326485, "woodside": 0.326362, "superstores": 0.326319, "tennant": 0.326311, "exacerbate": 0.326022, "mmd": 0.326002, "durgs": 0.326002, "mohawk": 0.325997, "lifetime": 0.325943, "bellsouth": 0.325909, "imd": 0.32588, "awf": 0.325753, "mtch": 0.325725, "oxoco": 0.325709, "aiki": 0.325706, "kitchens": 0.325706, "nahl": 0.325674, "gtx": 0.32559, "tka": 0.325535, "spk": 0.325496, "tsai": 0.325478, "cetus": 0.325418, "dixons": 0.325345, "efps": 0.325262, "eqk": 0.325248, "forint": 0.325157, "unbc": 0.325147, "reord": 0.325118, "moniterm": 0.325005, "mtrm": 0.325005, "bakr": 0.324972, "wsc": 0.324934, "megaphone": 0.324917, "infl": 0.324917, "sunstar": 0.324862, "sunf": 0.324862, "scheudled": 0.32483, "unicorp": 0.324824, "brf": 0.324774, "haml": 0.324764, "sonesta": 0.324715, "snst": 0.324715, "bancgroup": 0.324633, "cdin": 0.324564, "gts": 0.324549, "gtsc": 0.324549, "npsgu": 0.324544, "racetrack": 0.324506, "atu": 0.32444, "herstatt": 0.324386, "seagram": 0.324367, "grtr": 0.324331, "pyongyang": 0.324297, "cum": 0.324264, "lasmo": 0.324137, "wellemeyer": 0.324078, "romo": 0.323912, "leroux": 0.323912, "lle": 0.323779, "bced": 0.323728, "ofc": 0.323727, "aomi": 0.323721, "storehouse": 0.323651, "flyer": 0.323614, "shareowner": 0.323521, "contel": 0.323506, "dowa": 0.323501, "stna": 0.323479, "agi": 0.323476, "hb": 0.323456, "dj": 0.323451, "pepsico": 0.323404, "prot": 0.323184, "bertone": 0.323181, "curent": 0.323175, "mx": 0.323139, "napm": 0.323122, "asn": 0.323108, "ongc": 0.323059, "entregrowth": 0.323031, "dirhams": 0.322876, "inedible": 0.322812, "grammes": 0.322784, "acle": 0.322648, "genzyme": 0.322601, "genz": 0.322601, "pse": 0.322555, "psi": 0.322514, "tmexf": 0.32245, "bullmoose": 0.32245, "wmi": 0.322386, "capacitor": 0.322384, "foxboro": 0.322319, "autotrol": 0.322308, "autr": 0.322308, "atel": 0.322301, "teltec": 0.322301, "fcbn": 0.322299, "sanitary": 0.322296, "ply": 0.322281, "pgi": 0.322281, "jepson": 0.32221, "jeps": 0.32221, "zimmerman": 0.322141, "btci": 0.322136, "ssax": 0.322077, "dyr": 0.321971, "hfed": 0.321945, "kaufhof": 0.321857, "mmb": 0.321856, "respectivley": 0.321797, "samson": 0.321782, "operationswas": 0.321782, "lombardo": 0.321772, "bayliss": 0.321768, "kahn": 0.321715, "raleigh": 0.321715, "intellicorp": 0.321683, "inai": 0.321683, "calumet": 0.321608, "salvino": 0.321608, "undergarment": 0.321594, "seqp": 0.321577, "mnft": 0.321498, "hockin": 0.321479, "nurse": 0.321461, "melville": 0.321425, "hendersonville": 0.321389, "crosby": 0.321358, "advc": 0.321345, "pneumatic": 0.321302, "midrate": 0.321286, "hmoa": 0.321209, "shirt": 0.321134, "multibank": 0.321052, "reade": 0.321028, "famous": 0.320943, "fams": 0.320943, "hanson": 0.320923, "degussa": 0.320896, "neyra": 0.320871, "northport": 0.320857, "sfgd": 0.320617, "enseco": 0.320602, "ncco": 0.320602, "uht": 0.320594, "gaf": 0.320571, "cwe": 0.320558, "pharmacia": 0.320533, "suntrust": 0.320521, "harahap": 0.320497, "schmahl": 0.320463, "tcjc": 0.320443, "astro": 0.320407, "boxes": 0.32033, "honeybee": 0.320293, "hbe": 0.320293, "tyranex": 0.320249, "tyranite": 0.320249, "fecs": 0.32016, "cheung": 0.320151, "nordbanken": 0.320145, "ridge": 0.320039, "plantronics": 0.320032, "plx": 0.320032, "nent": 0.320027, "mos": 0.319895, "haffenden": 0.319872, "lig": 0.319872, "genencor": 0.319851, "resolves": 0.319736, "slcn": 0.319701, "cashways": 0.31962, "adventure": 0.319609, "chrz": 0.319566, "computerknowledge": 0.319566, "anixter": 0.319538, "bbl": 0.319529, "kotc": 0.31949, "westmin": 0.319394, "pwr": 0.319327, "immunogenetics": 0.319288, "igen": 0.319288, "reversl": 0.319288, "tianjin": 0.319276, "fpa": 0.319234, "gazetted": 0.319225, "talc": 0.31921, "ricart": 0.319191, "linear": 0.319145, "pofit": 0.319122, "prn": 0.319103, "det": 0.318992, "oestasiatiske": 0.318992, "kompagni": 0.318992, "asiatic": 0.318992, "ivac": 0.318877, "covington": 0.318819, "covt": 0.318819, "warnaco": 0.318804, "adjusments": 0.318804, "nvh": 0.318766, "leys": 0.318705, "turbo": 0.318637, "rtc": 0.318615};
+const VP10  = 0.3351429;
+const VP90  = 0.5182598;
+
+const CLUSTERS = [{"id": 1, "terms": ["vs", "net", "cts", "shr", "mln", "qtr", "revs", "lt"]}, {"id": 2, "terms": ["the", "to", "in", "of", "said", "and", "pct", "at"]}, {"id": 3, "terms": ["the", "said", "of", "to", "it", "lt", "and", "company"]}, {"id": 4, "terms": ["cts", "div", "qtly", "record", "pay", "prior", "april", "vs"]}, {"id": 5, "terms": ["loss", "vs", "profit", "cts", "net", "shr", "revs", "mln"]}];
+
+const MAX_SCORE = 0.795875;
+
+// ── ANIMATED COUNTERS ──────────────────────────────────────
+function animateCount(el, target, duration=1500){
+  let start = 0, step = target / (duration / 16);
+  const t = setInterval(()=>{
+    start = Math.min(start + step, target);
+    el.textContent = Math.floor(start).toLocaleString();
+    if(start >= target) clearInterval(t);
+  }, 16);
+}
+window.addEventListener('DOMContentLoaded', ()=>{
+  animateCount(document.getElementById('cnt1'), 10788);
+  animateCount(document.getElementById('cnt4'), 4000);
+});
+
+// ── CLUSTER CARDS TOGGLE ───────────────────────────────────
+function toggleCluster(card){
+  const full = card.querySelector('.cc-full');
+  card.classList.toggle('open');
+  full.style.display = card.classList.contains('open') ? 'flex' : 'none';
+}
+
+// ── KEYWORD TABLE FILTER ───────────────────────────────────
+let currentFilter = 'ALL';
+let currentSearch = '';
+function filterKw(label, btn){
+  currentFilter = label;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+function searchKw(val){
+  currentSearch = val.toLowerCase();
+  applyFilters();
+}
+function applyFilters(){
+  document.querySelectorAll('#kwTable tr[data-label]').forEach(row=>{
+    const matchLabel = currentFilter === 'ALL' || row.dataset.label === currentFilter;
+    const matchSearch = !currentSearch || row.dataset.kw.includes(currentSearch);
+    row.style.display = (matchLabel && matchSearch) ? '' : 'none';
+  });
+}
+
+// ── LIVE KEYWORD ANALYZER ─────────────────────────────────
+function analyzeLive(){
+  const word = document.getElementById('liveInput').value.trim().toLowerCase();
+  const box  = document.getElementById('liveResult');
+  box.className = 'result-box show';
+
+  if(!word){ box.className='result-box'; return; }
+
+  const score = VOCAB[word];
+  const icon  = document.getElementById('resIcon');
+  const wEl   = document.getElementById('resWord');
+  const sEl   = document.getElementById('resScore');
+  const bar   = document.getElementById('resBar');
+
+  if(score === undefined){
+    icon.textContent = '❓';
+    wEl.textContent  = '"' + word + '" — not in corpus vocabulary';
+    wEl.style.color  = 'var(--muted)';
+    sEl.textContent  = 'Try a different word (must appear in Reuters corpus)';
+    bar.style.width  = '0'; bar.style.background = 'var(--bg3)';
+    box.style.background = 'var(--bg2)'; box.style.borderColor = 'var(--bg3)';
+  } else {
+    let label, color, boxBg, boxBorder;
+    if(score >= VP90)      { label='TOP';    color='#FFD700'; boxBg='#9e6a0312'; boxBorder='#9e6a0355'; }
+    else if(score < VP10)  { label='BOTTOM'; color='#EF5350'; boxBg='#da363312'; boxBorder='#da363355'; }
+    else                  { label='MEDIUM'; color='#4FC3F7'; boxBg='#1f6feb12'; boxBorder='#1f6feb55'; }
+    const icons = {'TOP':'⭐','MEDIUM':'📊','BOTTOM':'🔻'};
+    icon.textContent = icons[label];
+    wEl.textContent  = word;
+    wEl.style.color  = color;
+    sEl.textContent  = 'TF-IDF score: ' + score.toFixed(6) + ' · Class: ' + label;
+    const pct = Math.min(100, Math.round(score / MAX_SCORE * 100));
+    bar.style.width  = pct + '%';
+    bar.style.background = 'linear-gradient(90deg,' + color + '88,' + color + ')';
+    box.style.background = boxBg; box.style.borderColor = boxBorder;
+  }
+}
+
+// ── RANDOM WORD ────────────────────────────────────────────
+const ALL_WORDS = Object.keys(VOCAB);
+function randomWord(){
+  const w = ALL_WORDS[Math.floor(Math.random() * ALL_WORDS.length)];
+  document.getElementById('liveInput').value = w;
+  analyzeLive();
+}
+
+// ── CLUSTER PREDICTOR ─────────────────────────────────────
+function predictCluster(){
+  const text = document.getElementById('clusterInput').value.toLowerCase();
+  const words = text.match(/[a-zA-Z]{2,}/g) || [];
+  const box   = document.getElementById('clusterResult');
+  const out   = document.getElementById('clusterOut');
+  box.className = 'result-box show';
+  box.style.background='var(--bg2)'; box.style.borderColor='var(--bg3)';
+
+  if(!words.length){ out.innerHTML='<span style="color:var(--muted)">Enter some text first.</span>'; return; }
+
+  // Score each cluster by term overlap
+  const scores = CLUSTERS.map(c=>{
+    let s = 0;
+    words.forEach(w => { if(c.terms.includes(w)) s += (VOCAB[w] || 0); });
+    return {id: c.id, score: s, terms: c.terms};
+  }).sort((a,b)=>b.score-a.score);
+
+  const best  = scores[0];
+  const COLORS = ['#58a6ff','#3fb950','#FFD700','#ff7b72','#d2a8ff'];
+  const col   = COLORS[best.id - 1];
+  const matched = words.filter(w => best.terms.includes(w));
+
+  out.innerHTML = `
+    <div style="font-size:1rem;font-weight:700;color:${col}">→ Most likely Cluster ${best.id}</div>
+    <div style="color:var(--muted);font-size:.84rem;margin-top:.3rem">
+      Matched terms: ${matched.length ? matched.map(w=>'<code style="background:var(--bg3);padding:0 .3rem;border-radius:4px">'+w+'</code>').join(' ') : 'none'}
+    </div>
+    <div style="margin-top:.6rem;display:flex;gap:.5rem">
+      ${scores.map(s=>`<div style="text-align:center">
+        <div style="font-size:.72rem;color:var(--muted)">C${s.id}</div>
+        <div style="width:36px;background:${COLORS[s.id-1]}${s.id===best.id?'':'44'};
+          height:${Math.max(4,Math.round(s.score/(best.score||1)*40))}px;
+          border-radius:3px;margin:2px auto;transition:height .4s"></div>
+      </div>`).join('')}
+    </div>`;
+}
+
+// ── NAV ACTIVE STATE ───────────────────────────────────────
+const observer = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+      const id = e.target.id;
+      const link = document.querySelector('nav a[href="#'+id+'"]');
+      if(link) link.classList.add('active');
+    }
+  });
+}, {threshold:0.3});
+document.querySelectorAll('.sec').forEach(s=>observer.observe(s));
+
+// ── PLOTLY CHARTS ─────────────────────────────────────────
+const dk={paper_bgcolor:'#0d1117',plot_bgcolor:'#161b22',
+  font:{color:'#e6edf3',family:'Inter'},
+  xaxis:{gridcolor:'#21262d',linecolor:'#30363d'},
+  yaxis:{gridcolor:'#21262d',linecolor:'#30363d'},
+  margin:{t:10,b:50,l:50,r:20}};
+
+Plotly.newPlot('pie_a',[{"labels": ["Cluster 1", "Cluster 2", "Cluster 3", "Cluster 4", "Cluster 5"], "values": [1353, 4232, 3775, 513, 915], "type": "pie", "hole": 0.42, "marker": {"colors": ["#58a6ff", "#3fb950", "#FFD700", "#ff7b72", "#d2a8ff"]}}],{...dk,showlegend:true,height:280,margin:{t:10,b:10,l:10,r:10}});
+Plotly.newPlot('bar_a',[{"x": ["vs", "net", "cts", "shr", "mln", "qtr", "revs", "lt"], "y": [0.3080761721711104, 0.2243397986411838, 0.21034214665347725, 0.19166029393844494, 0.1671226294942353, 0.1310273997318857, 0.12493159794519926, 0.0793642065615503], "type": "bar", "name": "C1", "marker": {"color": "#58a6ff"}}, {"x": ["the", "to", "in", "of", "said", "and", "pct", "at"], "y": [0.07044467525319267, 0.053741354518822775, 0.052877337633492685, 0.04818129067235047, 0.04425497090791239, 0.04132481210817522, 0.036597381907754266, 0.032310811476152765], "type": "bar", "name": "C2", "marker": {"color": "#3fb950"}}, {"x": ["the", "said", "of", "to", "it", "lt", "and", "company"], "y": [0.06414316166328998, 0.054576940771303546, 0.0543679251008772, 0.053773607754316194, 0.05059793727769322, 0.042692861547644914, 0.041884483628747034, 0.03957770546315454], "type": "bar", "name": "C3", "marker": {"color": "#FFD700"}}, {"x": ["cts", "div", "qtly", "record", "pay", "prior", "april", "vs"], "y": [0.2276141447567657, 0.22588052238943385, 0.22548768872306257, 0.19253061316174322, 0.18678170079017087, 0.18085981351472522, 0.1527242316201382, 0.13987246209921203], "type": "bar", "name": "C4", "marker": {"color": "#ff7b72"}}, {"x": ["loss", "vs", "profit", "cts", "net", "shr", "revs", "mln"], "y": [0.31585757537957654, 0.2557971854681529, 0.1927544967833, 0.17265720153790268, 0.17146462674774163, 0.15981455079429072, 0.1320030779756495, 0.11995485767240448], "type": "bar", "name": "C5", "marker": {"color": "#d2a8ff"}}],{...dk,barmode:'group',height:280,xaxis:{tickangle:-30}});
+Plotly.newPlot('bar_b',[{"x": [0.193029, 0.15929, 0.127978, 0.119067, 0.116543, 0.116143, 0.107564, 0.107402, 0.104826, 0.104009, 0.095063, 0.094703, 0.093114, 0.092017, 0.088441, 0.08684, 0.080283, 0.076908, 0.073239, 0.069847], "y": ["profit", "gold", "merger", "inflation", "bank", "energy", "tax", "dollar", "oil", "rate", "import", "export", "stock", "currency", "trade", "debt", "economy", "price", "market", "government"], "type": "bar", "orientation": "h", "marker": {"color": ["#FFD700", "#FFD700", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#EF5350", "#EF5350"]}}],{...dk,height:440,margin:{l:90,t:10,b:40,r:20}});
+
+// ── THEME TOGGLE ──────────────────────────────────────────
+function toggleTheme(){
+  const html = document.documentElement;
+  const body = document.body;
+  const curr = body.getAttribute('data-theme');
+  const next = curr === 'dark' ? 'light' : 'dark';
+  body.setAttribute('data-theme', next);
+  html.setAttribute('data-theme', next);
+  document.getElementById('themeToggle').textContent = next === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem('nlp-theme', next);
+  updatePlotlyTheme(next);
+}
+
+function updatePlotlyTheme(theme){
+  const isDark = theme === 'dark';
+  const upd = {
+    'paper_bgcolor': isDark ? '#161b22' : '#ffffff',
+    'plot_bgcolor':  isDark ? '#161b22' : '#f6f8fa',
+    'font.color':    isDark ? '#e6edf3' : '#1f2328',
+    'xaxis.gridcolor': isDark ? '#21262d' : '#e1e4e8',
+    'yaxis.gridcolor': isDark ? '#21262d' : '#e1e4e8',
+    'xaxis.linecolor': isDark ? '#30363d' : '#d0d7de',
+    'yaxis.linecolor': isDark ? '#30363d' : '#d0d7de',
+  };
+  ['pie_a','bar_a','bar_b'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && el.data) Plotly.relayout(id, upd);
+  });
+}
+
+// ── RESTORE SAVED THEME ───────────────────────────────────
+(function(){
+  const saved = localStorage.getItem('nlp-theme');
+  if(saved && saved === 'light'){
+    document.body.setAttribute('data-theme','light');
+    document.documentElement.setAttribute('data-theme','light');
+    document.getElementById('themeToggle').textContent = '☀️';
+    setTimeout(()=>updatePlotlyTheme('light'), 500);
+  }
+})();
+
+</script></body></html>

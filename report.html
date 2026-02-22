@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NLP Assignment — Dashboard</title>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
+header{background:linear-gradient(135deg,#161b22,#21262d);border-bottom:1px solid #30363d;padding:2rem 3rem}
+header h1{font-size:2rem;font-weight:700;color:#58a6ff}
+header p{color:#8b949e;margin-top:.4rem}
+.badge{display:inline-block;padding:.2rem .7rem;border-radius:12px;font-size:.78rem;font-weight:600;margin:.15rem}
+.ba{background:#1f6feb22;color:#58a6ff;border:1px solid #1f6feb}
+.bb{background:#9e6a0322;color:#FFD700;border:1px solid #9e6a03}
+.bc{background:#1a7f3722;color:#3fb950;border:1px solid #2ea043}
+nav{display:flex;gap:1rem;padding:1rem 3rem;background:#161b22;border-bottom:1px solid #30363d;position:sticky;top:0;z-index:100}
+nav a{color:#8b949e;text-decoration:none;font-size:.9rem;padding:.4rem .8rem;border-radius:6px;transition:all .2s}
+nav a:hover{background:#21262d;color:#e6edf3}
+.con{max-width:1400px;margin:0 auto;padding:2rem 3rem}
+.sec{margin-bottom:3rem}
+.sh{display:flex;align-items:center;gap:.8rem;margin-bottom:1.5rem;padding-bottom:.8rem;border-bottom:1px solid #21262d}
+.sh h2{font-size:1.4rem;font-weight:700}
+.cards{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-bottom:1.5rem}
+.card{background:#161b22;border:1px solid #21262d;border-radius:10px;padding:1.2rem}
+.card .ctitle{font-size:1.05rem;font-weight:700;color:#58a6ff}
+.card .num{font-size:2rem;font-weight:700;color:#58a6ff}
+.card .lbl{color:#8b949e;font-size:.85rem;margin-top:.2rem}
+.card .terms{margin-top:.6rem;font-size:.76rem;color:#8b949e}
+.cb{background:#161b22;border:1px solid #21262d;border-radius:10px;padding:1.2rem;margin-bottom:1.2rem}
+.cb h3{font-size:1rem;font-weight:600;color:#8b949e;margin-bottom:.8rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+img.embed{width:100%;border-radius:8px;border:1px solid #21262d}
+.kwt{width:100%;border-collapse:collapse;font-size:.85rem}
+.kwt th{background:#21262d;color:#8b949e;padding:.5rem .8rem;text-align:left;font-weight:600}
+.kwt td{padding:.45rem .8rem;border-bottom:1px solid #21262d}
+.kwt tr:hover td{background:#21262d44}
+.pill-top{padding:.15rem .5rem;border-radius:8px;font-size:.75rem;font-weight:600;background:#9e6a0322;color:#FFD700;border:1px solid #9e6a03}
+.pill-mid{padding:.15rem .5rem;border-radius:8px;font-size:.75rem;font-weight:600;background:#1f6feb22;color:#4FC3F7;border:1px solid #1f6feb}
+.pill-bottom{padding:.15rem .5rem;border-radius:8px;font-size:.75rem;font-weight:600;background:#da363322;color:#EF5350;border:1px solid #da3633}
+footer{text-align:center;padding:2rem;color:#484f58;font-size:.82rem;border-top:1px solid #21262d;margin-top:2rem}
+</style></head><body>
+
+<header>
+  <h1>🧠 NLP Assignment Dashboard</h1>
+  <p>Reuters Corpus — 10,788 news articles &nbsp;|&nbsp; Python · NLTK · scikit-learn</p>
+  <div style="margin-top:.8rem">
+    <span class="badge ba">🔵 Task A — Clustering</span>
+    <span class="badge bb">🟡 Task B — TF-IDF</span>
+    <span class="badge bc">🟢 Task C — Similarity</span>
+  </div>
+</header>
+<nav>
+  <a href="#task-a">🔵 Task A</a>
+  <a href="#task-b">🟡 Task B</a>
+  <a href="#task-c">🟢 Task C</a>
+</nav>
+<div class="con">
+<div class="cards" style="margin:2rem 0 2.5rem">
+  <div class="card"><div class="num">10,788</div><div class="lbl">Reuters Documents</div></div>
+  <div class="card"><div class="num" style="color:#3fb950">5</div><div class="lbl">Clusters (Task A)</div></div>
+  <div class="card"><div class="num" style="color:#FFD700">20</div><div class="lbl">Keywords (Task B)</div></div>
+  <div class="card"><div class="num" style="color:#ff7b72">90%</div><div class="lbl">Default Threshold (Task C)</div></div>
+</div>
+<div class="sec" id="task-a">
+  <div class="sh"><span style="font-size:1.8rem">🔵</span><h2 style="color:#58a6ff">Task A — Corpus Clustering</h2></div>
+  <div class="g3" style="margin-bottom:1.2rem"><div class="card"><div class="ctitle">Cluster 1</div><div class="num">1,353</div><div class="lbl">documents</div><div class="terms">vs, net, cts, shr, mln, qtr</div></div><div class="card"><div class="ctitle">Cluster 2</div><div class="num">4,232</div><div class="lbl">documents</div><div class="terms">the, to, in, of, said, and</div></div><div class="card"><div class="ctitle">Cluster 3</div><div class="num">3,775</div><div class="lbl">documents</div><div class="terms">the, said, of, to, it, lt</div></div><div class="card"><div class="ctitle">Cluster 4</div><div class="num">513</div><div class="lbl">documents</div><div class="terms">cts, div, qtly, record, pay, prior</div></div><div class="card"><div class="ctitle">Cluster 5</div><div class="num">915</div><div class="lbl">documents</div><div class="terms">loss, vs, profit, cts, net, shr</div></div></div>
+  <div class="g2">
+    <div class="cb"><h3>Cluster Distribution</h3><div id="pie_a"></div></div>
+    <div class="cb"><h3>Top Terms per Cluster</h3><div id="bar_a"></div></div>
+  </div>
+  <div class="chart-box"><h3>☁️ Word Clouds</h3><p style="color:#8b949e">Run NLP_Assignment.ipynb in Colab first to generate charts.</p></div>
+  
+</div>
+<div class="sec" id="task-b">
+  <div class="sh"><span style="font-size:1.8rem">🟡</span><h2 style="color:#FFD700">Task B — Keyword TF-IDF Classification</h2></div>
+  <div class="cards" style="margin-bottom:1.2rem">
+    <div class="card"><div class="num" style="color:#FFD700">2</div><div class="lbl">⭐ TOP keywords</div></div>
+    <div class="card"><div class="num" style="color:#4FC3F7">16</div><div class="lbl">📊 MEDIUM keywords</div></div>
+    <div class="card"><div class="num" style="color:#EF5350">2</div><div class="lbl">🔻 BOTTOM keywords</div></div>
+    <div class="card"><div class="num" style="color:#8b949e;font-size:1.2rem">0.0765 / 0.1311</div><div class="lbl">10th / 90th percentile</div></div>
+  </div>
+  <div class="g2">
+    <div class="cb"><h3>TF-IDF Scores</h3><div id="bar_b"></div></div>
+    <div class="cb" style="overflow:auto"><h3>Keyword Results</h3>
+      <table class="kwt">
+        <tr><th>Keyword</th><th>TF-IDF Score</th><th>Class</th></tr>
+        <tr><td><b>profit</b></td><td>0.193029</td><td><span class="pill-top">⭐ TOP</span></td></tr>
+<tr><td><b>gold</b></td><td>0.159290</td><td><span class="pill-top">⭐ TOP</span></td></tr>
+<tr><td><b>merger</b></td><td>0.127978</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>inflation</b></td><td>0.119067</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>bank</b></td><td>0.116543</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>energy</b></td><td>0.116143</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>tax</b></td><td>0.107564</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>dollar</b></td><td>0.107402</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>oil</b></td><td>0.104826</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>rate</b></td><td>0.104009</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>import</b></td><td>0.095063</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>export</b></td><td>0.094703</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>stock</b></td><td>0.093114</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>currency</b></td><td>0.092017</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>trade</b></td><td>0.088441</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>debt</b></td><td>0.086840</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>economy</b></td><td>0.080283</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>price</b></td><td>0.076908</td><td><span class="pill-mid">📊 MEDIUM</span></td></tr>
+<tr><td><b>market</b></td><td>0.073239</td><td><span class="pill-bottom">🔻 BOTTOM</span></td></tr>
+<tr><td><b>government</b></td><td>0.069847</td><td><span class="pill-bottom">🔻 BOTTOM</span></td></tr>
+
+      </table></div>
+  </div>
+  
+</div>
+<div class="sec" id="task-c">
+  <div class="sh"><span style="font-size:1.8rem">🟢</span><h2 style="color:#3fb950">Task C — Document Similarity Search</h2></div>
+  <div class="cb" style="margin-bottom:1.2rem">
+    <div class="lbl">Sample Query</div>
+    <div style="margin-top:.5rem;font-style:italic;line-height:1.6;color:#e6edf3">
+      "Oil prices surged today as OPEC agreed to cut production. The crude market saw strong gains and the dollar weakened..."
+    </div>
+  </div>
+  
+</div>
+</div>
+<footer>NLP Course Assignment &nbsp;·&nbsp; Reuters Corpus &nbsp;·&nbsp; Python + NLTK + scikit-learn &nbsp;·&nbsp; 2026</footer>
+
+<script>
+const dk = {paper_bgcolor:'#0d1117',plot_bgcolor:'#161b22',
+  font:{color:'white',family:'Inter'},
+  xaxis:{gridcolor:'#21262d'},yaxis:{gridcolor:'#21262d'}};
+Plotly.newPlot('pie_a',[{"labels": ["Cluster 1", "Cluster 2", "Cluster 3", "Cluster 4", "Cluster 5"], "values": [1353, 4232, 3775, 513, 915], "type": "pie", "hole": 0.45, "marker": {"colors": ["#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854"]}}],{...dk,margin:{t:10,b:10},height:280});
+Plotly.newPlot('bar_a',[{"x": ["vs", "net", "cts", "shr", "mln", "qtr", "revs", "lt", "dlrs", "avg", "shrs", "mths"], "y": [0.3080761721711103, 0.2243397986411838, 0.21034214665347725, 0.19166029393844494, 0.1671226294942353, 0.1310273997318857, 0.12493159794519923, 0.0793642065615503, 0.0779939322051243, 0.07655166707442121, 0.0756873281098974, 0.07176306333555336], "type": "bar", "name": "Cluster 1"}, {"x": ["the", "to", "in", "of", "said", "and", "pct", "at", "for", "on", "from", "was"], "y": [0.07044467525319267, 0.05374135451882278, 0.052877337633492685, 0.04818129067235047, 0.04425497090791239, 0.041324812108175235, 0.03659738190775427, 0.032310811476152765, 0.030854620587261284, 0.03034824386353176, 0.029427666489834865, 0.027355026344844005], "type": "bar", "name": "Cluster 2"}, {"x": ["the", "said", "of", "to", "it", "lt", "and", "company", "in", "its", "dlrs", "for"], "y": [0.06414316166328998, 0.05457694077130353, 0.0543679251008772, 0.053773607754316194, 0.05059793727769322, 0.042692861547644914, 0.041884483628747034, 0.03957770546315454, 0.03957724098696116, 0.038922042635917586, 0.03851794645675908, 0.03746166808698391], "type": "bar", "name": "Cluster 3"}, {"x": ["cts", "div", "qtly", "record", "pay", "prior", "april", "vs", "sets", "dividend", "lt", "payout"], "y": [0.2276141447567657, 0.22588052238943382, 0.22548768872306257, 0.19253061316174322, 0.1867817007901709, 0.18085981351472522, 0.1527242316201382, 0.13987246209921206, 0.09856886244530542, 0.09271677094175906, 0.08968501968469524, 0.08890629031446735], "type": "bar", "name": "Cluster 4"}, {"x": ["loss", "vs", "profit", "cts", "net", "shr", "revs", "mln", "qtr", "dlrs", "oper", "year"], "y": [0.31585757537957654, 0.2557971854681529, 0.1927544967833, 0.1726572015379027, 0.17146462674774163, 0.15981455079429072, 0.1320030779756495, 0.1199548576724045, 0.10441584543390639, 0.08124195701905376, 0.075616771613138, 0.07215597110656063], "type": "bar", "name": "Cluster 5"}],{...dk,barmode:'group',margin:{t:10,b:80},height:280,xaxis:{tickangle:-35}});
+Plotly.newPlot('bar_b',[{"x": [0.19302923900903723, 0.15928993548771514, 0.1279781667953567, 0.11906721873970447, 0.11654294029807856, 0.11614291416203744, 0.10756367409929014, 0.10740228392715438, 0.10482640043929432, 0.10400890131890587, 0.09506254551133833, 0.09470344582165845, 0.09311424509155877, 0.09201719541315583, 0.08844087893781993, 0.08683971633984011, 0.08028307424287212, 0.07690824209514578, 0.07323888356392388, 0.06984695791056429], "y": ["profit", "gold", "merger", "inflation", "bank", "energy", "tax", "dollar", "oil", "rate", "import", "export", "stock", "currency", "trade", "debt", "economy", "price", "market", "government"], "type": "bar", "orientation": "h", "marker": {"color": ["#FFD700", "#FFD700", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#4FC3F7", "#EF5350", "#EF5350"]}}],{...dk,margin:{l:90,t:10,b:40},height:440});
+</script></body></html>

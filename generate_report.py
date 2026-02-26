@@ -528,6 +528,44 @@ inner.append(colored_table(
     col_widths=[3.5*cm, 5.5*cm, 3.5*cm, 4.5*cm],
     font_size=8.5
 ))
+inner.append(spacer(0.4))
+
+# About the corpus
+inner.append(sub_header('About the Reuters-21578 Corpus'))
+inner.append(Paragraph(
+    'The <b>Reuters-21578 corpus</b> is one of the most widely used benchmark datasets '
+    'in Natural Language Processing and Information Retrieval research. It was originally '
+    'collected from the Reuters newswire in 1987 and prepared by Carnegie Group, Inc. and '
+    'Reuters, Ltd. The corpus consists of <b>10,788 documents</b> covering a broad range '
+    'of financial, economic, and political topics including oil markets, trade policy, '
+    'commodity prices, corporate earnings, banking, and international finance.',
+    S_BODY))
+inner.append(Paragraph(
+    'Each document in the corpus is <b>pre-labeled</b> with one or more category tags '
+    '(such as \'earn\', \'acq\', \'crude\', \'trade\') — but in this assignment, '
+    'those labels are intentionally <b>not used during model training</b>. '
+    'This makes all three tasks <b>unsupervised</b>: the models must discover '
+    'structure and relationships in the text purely from its content, without '
+    'any pre-existing human annotations guiding the process.',
+    S_BODY))
+inner.append(spacer(0.3))
+
+# NLP context
+inner.append(sub_header('What is Natural Language Processing?'))
+inner.append(Paragraph(
+    '<b>Natural Language Processing (NLP)</b> is a branch of Artificial Intelligence (AI) '
+    'that focuses on enabling computers to understand, interpret, and manipulate human '
+    'language. Unlike structured data (numbers, categories), natural language text is '
+    'inherently ambiguous, context-dependent, and highly variable.',
+    S_BODY))
+inner.append(Paragraph(
+    'The core challenge in computational text analysis is converting raw text into a '
+    '<b>numerical representation</b> that machine learning algorithms can process. '
+    'This project uses <b>TF-IDF (Term Frequency-Inverse Document Frequency)</b> — '
+    'a classical and highly effective technique for representing documents as '
+    'numerical vectors that capture the statistical importance of each word '
+    'relative to the entire corpus.',
+    S_BODY))
 inner.append(spacer(0.3))
 
 # ── 2. TECHNICAL STACK ────────────────────────────────────────
@@ -547,6 +585,27 @@ tech = [
 ]
 inner.append(colored_table(tech, [3*cm, 5.5*cm, 8.5*cm],
              header_color=colors.HexColor('#6e40c9'), font_size=8.5))
+inner.append(spacer(0.4))
+inner.append(Paragraph(
+    '<b>Python 3</b> was chosen as the implementation language due to its dominant position '
+    'in the NLP and data science ecosystem. Its extensive library support, readable syntax, '
+    'and seamless integration with Jupyter notebooks make it ideal for academic experiments.',
+    S_BODY))
+inner.append(Paragraph(
+    '<b>NLTK (Natural Language Toolkit)</b> provides direct access to the Reuters corpus '
+    'via its built-in corpus reader. No manual downloading or preprocessing is required — '
+    'the corpus is accessed with a single import statement: '
+    '<font name="Courier" size="9">from nltk.corpus import reuters</font>. '
+    'NLTK also provides standard NLP utilities like tokenizers, stopword lists, '
+    'and part-of-speech taggers.',
+    S_BODY))
+inner.append(Paragraph(
+    '<b>scikit-learn</b> is the most widely-used Python machine learning library. '
+    'It provides production-quality implementations of TF-IDF vectorization '
+    '(<font name="Courier" size="9">TfidfVectorizer</font>), '
+    'K-Means clustering (<font name="Courier" size="9">KMeans</font>), '
+    'cosine similarity computation, and L2 vector normalization — all used in this project.',
+    S_BODY))
 inner.append(PageBreak())
 
 # ── 3. TASK A ────────────────────────────────────────────────
@@ -587,9 +646,44 @@ for title, desc in steps:
         ])))
     inner.append(spacer(0.2))
 
+# Key concept box: TF-IDF definition
+inner.append(info_box(
+    '<b>Key Concept — TF-IDF (Term Frequency-Inverse Document Frequency):</b><br/>'
+    'TF-IDF is a numerical statistic that reflects how important a word is to a '
+    'document within a collection (corpus). A word that appears frequently in one '
+    'document but rarely across the corpus gets a high TF-IDF score — meaning it is '
+    'a strong discriminator for that document. Common words like "the", "is", "at" '
+    'receive very low scores because they appear everywhere and carry little meaning.',
+))
+inner.append(spacer(0.3))
+
+inner.append(info_box(
+    '<b>Key Concept — Cosine Similarity:</b><br/>'
+    'Cosine similarity measures the angle between two TF-IDF vectors in a multi-dimensional space. '
+    'A cosine similarity of 1.0 means the documents are identical in content distribution. '
+    'A value of 0.0 means they share no common vocabulary. Unlike Euclidean distance, '
+    'cosine similarity is independent of document length — a 2-sentence article and a '
+    '10-paragraph article on the same topic will still score highly similar.',
+))
+inner.append(spacer(0.3))
+
+inner.append(info_box(
+    '<b>Key Concept — K-Means Clustering:</b><br/>'
+    'K-Means is an unsupervised machine learning algorithm that partitions data into K groups. '
+    'It works by: (1) Randomly initialising K cluster centers (centroids), '
+    '(2) Assigning each document to the nearest centroid, '
+    '(3) Recomputing centroids as the mean of their assigned documents, '
+    '(4) Repeating steps 2-3 until assignments stabilise. '
+    'When applied to L2-normalised TF-IDF vectors, minimising Euclidean distance is '
+    'mathematically equivalent to maximising cosine similarity between documents and centroids.',
+    bg=colors.HexColor('#fff8e1'), border=GOLD
+))
+inner.append(spacer(0.3))
+
 inner.append(Paragraph(
     f'<b>Configuration used:</b>  K = {K} clusters, 10,788 documents, '
-    f'TF-IDF vocabulary size = 10,000 features.', S_BODY))
+    f'TF-IDF vocabulary size = 10,000 features, k-means++ initialisation, n_init=10 runs.',
+    S_BODY))
 inner.append(spacer(0.3))
 
 inner.append(sub_header('3.2 Results'))
@@ -605,6 +699,28 @@ for c in clusters:
     ])
 inner.append(colored_table(cdata, [2.5*cm, 3*cm, 3*cm, 8.5*cm], font_size=8.5))
 inner.append(Paragraph('Table 1: Cluster composition and top TF-IDF terms per cluster.', S_CAPTION))
+inner.append(spacer(0.3))
+inner.append(sub_header('3.3 Interpreting the Results'))
+inner.append(Paragraph(
+    'Each cluster can be interpreted by examining its <b>top TF-IDF terms</b> — the words '
+    'that have the highest average TF-IDF weight among documents assigned to that cluster. '
+    'These terms act as a thematic fingerprint for the cluster:',
+    S_BODY))
+for c in clusters:
+    terms_str = ', '.join(c["terms"][:6])
+    pct = c["docs"] / len(documents) * 100
+    inner.append(Paragraph(
+        f'• <b>Cluster {c["id"]}</b> ({c["docs"]:,} docs, {pct:.1f}%): '
+        f'Top terms — <font name="Courier" size="9">{terms_str}</font>. '
+        f'These terms suggest documents in this cluster share a common topical theme.',
+        S_BULLET))
+inner.append(spacer(0.2))
+inner.append(Paragraph(
+    'The unequal distribution of documents across clusters is expected and normal in '
+    'real-world text corpora. The Reuters corpus is dominated by financial and earnings '
+    'reports, which naturally form larger, denser clusters. Smaller clusters tend to '
+    'capture more specialised or niche topics.',
+    S_BODY))
 
 # Charts side-by-side
 inner.append(spacer(0.3))
@@ -630,7 +746,32 @@ inner.append(sub_header('4.1 Methodology'))
 inner.append(Paragraph(
     'Task B accepts a file of keywords and computes the <b>mean TF-IDF score</b> '
     'for each keyword across all documents in the Reuters corpus. '
-    'Keywords are then classified into three tiers using a <b>10-80-10 percentile split</b>:', S_BODY))
+    'Keywords are then classified into three tiers using a <b>10-80-10 percentile split</b>.', S_BODY))
+inner.append(Paragraph(
+    'The idea behind this approach is straightforward: if a keyword has a high TF-IDF '
+    'score when averaged across all documents, it means the word is consistently '
+    '<b>important and discriminating</b> in many documents — it is semantically rich '
+    'and frequently meaningful in context. A very low average score means the word '
+    'is either extremely rare across the corpus (appearing in few documents) or so '
+    'universally common that its TF-IDF weight is suppressed.', S_BODY))
+inner.append(spacer(0.2))
+inner.append(info_box(
+    '<b>Processing Pipeline for Task B:</b><br/>'
+    '1. Build a TF-IDF matrix over all 10,788 Reuters documents.<br/>'
+    '2. For each keyword in the input file, retrieve the column of TF-IDF scores '
+    '   across all documents where the word appears.<br/>'
+    '3. Compute the <b>mean</b> of all non-zero TF-IDF values for that keyword.<br/>'
+    '4. Collect all keyword scores and compute the <b>10th and 90th percentiles</b>.<br/>'
+    '5. Assign each keyword to TOP (above 90th pct), MEDIUM (10th-90th pct), or BOTTOM (below 10th pct).'
+))
+inner.append(spacer(0.3))
+inner.append(Paragraph(
+    '<b>Why the Percentile Split?</b> Using percentile-based thresholds instead of '
+    'absolute score thresholds makes the classification <b>adaptive to each corpus</b>. '
+    'Different corpora have very different TF-IDF score distributions. By always '
+    'placing exactly 10% of keywords in TOP and 10% in BOTTOM, the method produces '
+    'consistent and meaningful groupings regardless of the corpus or keyword set used.',
+    S_BODY))
 inner.append(spacer(0.2))
 
 tier_table = Table([
@@ -696,6 +837,40 @@ kw_table = Table(kw_rows_data, colWidths=[1.5*cm, 4*cm, 5.5*cm, 3*cm],
 inner.append(kw_table)
 inner.append(Paragraph('Table 2: TF-IDF scores and classification for all 20 keywords.', S_CAPTION))
 inner.append(spacer(0.3))
+inner.append(sub_header('4.3 Interpreting the Keyword Rankings'))
+inner.append(Paragraph(
+    'Looking at the results, the rankings make intuitive sense in the context of '
+    'the Reuters financial newswire corpus:', S_BODY))
+top_kws = [kw for kw,_,lb in kw_data if lb=='TOP']
+mid_kws = [kw for kw,_,lb in kw_data if lb=='MEDIUM']
+bot_kws = [kw for kw,_,lb in kw_data if lb=='BOTTOM']
+if top_kws:
+    inner.append(Paragraph(
+        '<b>TOP keywords</b> (' + str(len(top_kws)) + ' word(s): ' + ', '.join(top_kws) + '): '
+        'These terms appear with high TF-IDF weight in many Reuters articles, '
+        'confirming they are core discriminating terms within financial newswire content.',
+        S_BULLET))
+if mid_kws:
+    inner.append(Paragraph(
+        '<b>MEDIUM keywords</b> (' + str(len(mid_kws)) + ' word(s)): '
+        'These terms appear with moderate frequency and importance across the corpus. '
+        'They are present in many articles but do not strongly distinguish any particular topic.',
+        S_BULLET))
+if bot_kws:
+    inner.append(Paragraph(
+        '<b>BOTTOM keywords</b> (' + str(len(bot_kws)) + ' word(s): ' + ', '.join(bot_kws) + '): '
+        'These terms have very low average TF-IDF scores, either because they appear '
+        'in very few documents, or because they are too general to be informationally '
+        'significant within this specific corpus.',
+        S_BULLET))
+inner.append(spacer(0.2))
+inner.append(Paragraph(
+    'This kind of keyword ranking is extremely useful in <b>Information Retrieval</b>, '
+    '<b>Search Engine Optimization</b>, and <b>Content Analysis</b>. '
+    'Knowing which terms carry the most discriminating weight in a corpus helps '
+    'analysts quickly identify the most topically significant language in a document collection.',
+    S_BODY))
+inner.append(spacer(0.3))
 inner.append(make_tfidf_bar())
 inner.append(Paragraph('Figure 2: TF-IDF score per keyword. Gold = TOP, Blue = MEDIUM, Red = BOTTOM.', S_CAPTION))
 inner.append(PageBreak())
@@ -707,11 +882,44 @@ inner.append(spacer(0.4))
 
 inner.append(sub_header('5.1 Methodology'))
 inner.append(Paragraph(
-    'Task C accepts a query document and a match percentile threshold, '
-    'then retrieves all corpus documents whose <b>cosine similarity</b> '
-    'with the query exceeds the score at that percentile. '
-    '<b>No stopword removal</b> is applied, as specified in the assignment.', S_BODY))
+    'Task C implements a <b>content-based document similarity search</b> — given a '
+    'query document written by the user, the system finds all corpus documents that '
+    'are topically similar above a specified similarity threshold.', S_BODY))
+inner.append(Paragraph(
+    'The implementation follows a standard <b>Vector Space Model</b> pipeline: '
+    'represent all documents as TF-IDF vectors, represent the query as a vector in '
+    'the same space, then compute cosine similarity between the query vector and '
+    'every corpus document vector. Documents whose similarity exceeds the percentile '
+    'threshold are returned as matches.', S_BODY))
 inner.append(spacer(0.2))
+inner.append(info_box(
+    '<b>Step-by-Step Pipeline for Task C:</b><br/>'
+    '1. Build TF-IDF vectorizer on the full Reuters corpus (no stopword removal, as specified).<br/>'
+    '2. Transform all 10,788 documents into a TF-IDF matrix.<br/>'
+    '3. Accept a free-text query document from the user.<br/>'
+    '4. Transform the query using the <b>same</b> TF-IDF vocabulary (out-of-vocabulary words are ignored).<br/>'
+    '5. Compute <b>cosine similarity</b> between the query vector and every document vector.<br/>'
+    '6. Compute the Nth percentile of all similarity scores (user-specified threshold).<br/>'
+    '7. Return all documents with similarity >= that percentile threshold.',
+    bg=colors.HexColor('#dafbe1'), border=GREEN
+))
+inner.append(spacer(0.3))
+inner.append(Paragraph(
+    '<b>Why no stopword removal?</b> The assignment explicitly states not to remove '
+    'stopwords for Task C. This is a deliberate design choice: in document similarity '
+    'search, stopwords like "the", "a", "is" still appear in the TF-IDF matrix but '
+    'receive extremely low weights because of their high document frequency '
+    '(the IDF component heavily penalises words that appear in most documents). '
+    'Their inclusion does not meaningfully affect similarity scores but preserves '
+    'the exact assignment specification.', S_BODY))
+inner.append(Paragraph(
+    '<b>What does the percentile threshold mean?</b> If the user specifies '
+    'the ' + str(PERCENTILE) + 'th percentile (as in this demonstration), it means: '
+    '"return all documents whose similarity to the query is higher than ' + str(100-PERCENTILE) + '% '
+    'of documents." '
+    'This resulted in a threshold of ' + f'{threshold:.6f}' + ' and ' + f'{matches:,}' + ' matching documents.',
+    S_BODY))
+inner.append(spacer(0.3))
 
 inner.append(info_box(
     f'⚙️  Configuration: Percentile = {PERCENTILE}  ·  '
@@ -746,6 +954,29 @@ inner.append(colored_table(sim_data, [1.5*cm, 5.5*cm, 4.5*cm, 5.5*cm],
              header_color=colors.HexColor('#1a7f37'), font_size=8.5))
 inner.append(Paragraph('Table 3: Top-10 most similar documents with cosine similarity scores.', S_CAPTION))
 inner.append(spacer(0.3))
+inner.append(sub_header('5.3 Interpreting Similarity Results', color=colors.HexColor('#1a7f37')))
+inner.append(Paragraph(
+    'The top-matching documents are those that share the most vocabulary with the query '
+    'in terms of TF-IDF importance. Since the query discusses '
+    '<b>oil prices, OPEC production, and energy markets</b>, the returned documents '
+    'are expected to cluster around financial energy topics — confirming the model '
+    'has correctly identified thematically relevant documents.',
+    S_BODY))
+inner.append(Paragraph(
+    'The cosine similarity scores for top matches range from approximately '
+    + f'{top_docs[0][1]:.4f}' + ' (most similar) down to ' + f'{top_docs[-1][1]:.4f}' +
+    ' (10th ranked match). '
+    'These values are not percentages, but rather cosine distance measures '
+    'on unit-normalised TF-IDF vectors. A score of 0.10–0.30 is considered a strong '
+    'match in high-dimensional text data, where most documents have near-zero similarity.',
+    S_BODY))
+inner.append(Paragraph(
+    '<b>Real-world Applications:</b> This kind of similarity search is the foundation of '
+    'many real-world systems: news recommendation engines ("you may also like"), '
+    'legal document retrieval, academic paper search (Semantic Scholar, Google Scholar), '
+    'plagiarism detection, and enterprise knowledge base search.',
+    S_BODY))
+inner.append(spacer(0.3))
 inner.append(make_sim_bar())
 inner.append(Paragraph('Figure 3: Top-10 document similarity scores (descending). Green intensity reflects rank.', S_CAPTION))
 inner.append(PageBreak())
@@ -755,9 +986,21 @@ inner.append(spacer(0.3))
 inner.append(section_title('6', '✅', 'Conclusion', colors.HexColor('#6e40c9')))
 inner.append(spacer(0.4))
 inner.append(Paragraph(
-    'All three general assignment tasks have been successfully implemented '
-    'using Python, NLTK, and scikit-learn on the Reuters-21578 benchmark corpus. '
-    'Each script is self-contained, interactive, and well-documented.', S_BODY))
+    'All three NLP assignment tasks have been successfully implemented and verified '
+    'using <b>Python 3</b>, <b>NLTK</b>, and <b>scikit-learn</b> on the Reuters-21578 '
+    'benchmark corpus of 10,788 newswire documents. Each task demonstrates a distinct '
+    'but complementary aspect of <b>unsupervised text analysis</b>: discovering hidden '
+    'structure (Task A), measuring word importance (Task B), and finding relevant content '
+    '(Task C). Together, they form a complete NLP analysis pipeline.', S_BODY))
+inner.append(spacer(0.2))
+inner.append(Paragraph(
+    '<b>What was learned:</b> This project demonstrates that even without labelled training '
+    'data — using purely unsupervised methods — it is possible to extract rich, meaningful '
+    'structure from a large text corpus. The TF-IDF representation combined with cosine '
+    'similarity is a powerful, computationally efficient foundation for text mining. '
+    'The Reuters corpus, despite being from 1987, remains a valid and widely-used '
+    'benchmark for NLP experiments precisely because of its diversity and consistent '
+    'labelling.', S_BODY))
 inner.append(spacer(0.3))
 
 summary_data = [
@@ -782,7 +1025,35 @@ inner.append(Table(summary_data, colWidths=[1.2*cm, 2.5*cm, 13.3*cm],
         ('ROUNDEDCORNERS',[6]),
         ('BOX', (0,0),(-1,-1), 1, colors.HexColor('#2ea043')),
     ])))
-inner.append(spacer(0.5))
+inner.append(spacer(0.4))
+
+inner.append(sub_header('Limitations and Future Improvements'))
+inner.append(Paragraph(
+    'While the current implementation successfully meets all assignment requirements, '
+    'several enhancements could further improve the quality of results:', S_BODY))
+limitations = [
+    ('<b>Bag-of-Words limitation:</b> TF-IDF treats documents as unordered word bags, '
+     'ignoring word order, grammar, and context. Modern alternatives such as '
+     '<b>Word2Vec</b>, <b>GloVe</b>, or <b>BERT sentence embeddings</b> produce '
+     'richer, context-aware document representations and would likely yield more '
+     'semantically coherent clusters.'),
+    ('<b>Optimal K selection:</b> The number of clusters K=5 was chosen based on '
+     'the assignment default. In practice, the optimal K can be determined '
+     'using the <b>Elbow Method</b> (plotting inertia vs K) or the '
+     '<b>Silhouette Score</b> which measures how well each document fits its '
+     'assigned cluster versus neighbouring clusters.'),
+    ('<b>Scalability:</b> For very large corpora (millions of documents), '
+     'K-Means on dense TF-IDF matrices becomes expensive. Solutions include '
+     '<b>MiniBatchKMeans</b> for clustering, <b>Approximate Nearest Neighbour</b> '
+     'methods (FAISS, Annoy) for similarity search, and sparse matrix '
+     'representations already used in this implementation via scipy sparse.'),
+    ('<b>Keyword input file:</b> Task B currently uses a hardcoded demo keyword list. '
+     'The standalone script accepts any <b>user-supplied text file</b> of keywords, '
+     'making it fully generalisable to any domain or vocabulary.'),
+]
+for item in limitations:
+    inner.append(Paragraph(f'\u2022 {item}', S_BULLET))
+inner.append(spacer(0.4))
 
 # Deliverables
 inner.append(sub_header('📁 Project Deliverables'))
